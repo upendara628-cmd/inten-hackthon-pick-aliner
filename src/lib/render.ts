@@ -47,6 +47,9 @@ export function renderComposite(
   const bw = (theme.box_width / 100) * base.w;
   const bh = (theme.box_height / 100) * base.h;
 
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(bg, base.x, base.y, base.w, base.h);
+
   if (photo) {
     ctx.save();
     ctx.beginPath();
@@ -60,8 +63,6 @@ export function renderComposite(
     ctx.drawImage(photo, bx + p.x, by + p.y, p.w, p.h);
     ctx.restore();
   }
-
-  ctx.drawImage(bg, base.x, base.y, base.w, base.h);
 }
 
 export function downloadCanvas(canvas: HTMLCanvasElement, filename: string) {
