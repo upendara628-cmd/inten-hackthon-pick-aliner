@@ -81,9 +81,18 @@ function AdminCreator() {
   };
 
   const save = async () => {
-    if (!src) return toast.error("Upload a template image first.");
-    if (!title.trim()) return toast.error("Give the theme a name.");
-    if (box.width < 2 || box.height < 2) return toast.error("Draw a photo placeholder box.");
+    if (!src) {
+      toast.error("Upload a template image first.");
+      return;
+    }
+    if (!title.trim()) {
+      toast.error("Give the theme a name.");
+      return;
+    }
+    if (box.width < 2 || box.height < 2) {
+      toast.error("Draw a photo placeholder box.");
+      return;
+    }
     setSaving(true);
     try {
       const id = newId();
