@@ -16,6 +16,7 @@ import {
   type TextFieldKey,
   type TextPositions,
   type Theme,
+  type UserTextValues,
 } from "@/lib/store";
 import { loadImage } from "@/lib/render";
 
@@ -50,6 +51,11 @@ function AdminCreator() {
     fullName: { ...DEFAULT_TEXT_POSITIONS.fullName },
     jobTitle: { ...DEFAULT_TEXT_POSITIONS.jobTitle },
     idCode: { ...DEFAULT_TEXT_POSITIONS.idCode },
+  });
+  const [previewText, setPreviewText] = useState<UserTextValues>({
+    fullName: "FULL NAME",
+    jobTitle: "JOB TITLE / ROLE",
+    idCode: "ID / CODE",
   });
   const [processing, setProcessing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -191,6 +197,33 @@ function AdminCreator() {
               </div>
             </div>
 
+            <fieldset className="space-y-3 border-t border-slate-200 pt-5">
+              <legend className="text-sm font-medium text-slate-900">Preview user text</legend>
+              {(
+                [
+                  ["fullName", "Full name"],
+                  ["jobTitle", "Job title / role"],
+                  ["idCode", "ID / code"],
+                ] as const
+              ).map(([key, label]) => (
+                <div key={key}>
+                  <label htmlFor={`preview-${key}`} className="text-xs text-slate-600">
+                    {label}
+                  </label>
+                  <input
+                    id={`preview-${key}`}
+                    type="text"
+                    value={previewText[key]}
+                    onChange={(event) =>
+                      setPreviewText((current) => ({ ...current, [key]: event.target.value }))
+                    }
+                    maxLength={80}
+                    className="mt-1 w-full border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600"
+                  />
+                </div>
+              ))}
+            </fieldset>
+
             <dl className="space-y-1 border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
               {(
                 [
@@ -253,11 +286,7 @@ function AdminCreator() {
                     ratio={r}
                     theme={preview}
                     background={bg}
-                    textValues={{
-                      fullName: "FULL NAME",
-                      jobTitle: "JOB TITLE / ROLE",
-                      idCode: "ID / CODE",
-                    }}
+                    textValues={previewText}
                   />
                 ))}
               </div>
