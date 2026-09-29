@@ -18,6 +18,8 @@ export const Route = createFileRoute("/admin/themes")({
         property: "og:description",
         content: "All published templates with copyable share links for your audience.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: ThemeGallery,
