@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Download } from "lucide-react";
 import type { RatioDef } from "@/lib/ratios";
-import type { Theme } from "@/lib/store";
+import type { Theme, UserTextValues } from "@/lib/store";
 import { downloadCanvas, renderComposite } from "@/lib/render";
 
 export function RatioCanvas({
@@ -9,12 +9,14 @@ export function RatioCanvas({
   theme,
   background,
   photo,
+  textValues,
   downloadable = false,
 }: {
   ratio: RatioDef;
   theme: Theme;
   background: HTMLImageElement | null;
   photo?: HTMLImageElement | null;
+  textValues?: UserTextValues;
   downloadable?: boolean;
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -28,8 +30,9 @@ export function RatioCanvas({
       theme,
       background,
       photo ?? null,
+      textValues,
     );
-  }, [ratio, theme, background, photo]);
+  }, [ratio, theme, background, photo, textValues]);
 
   return (
     <div className="border border-slate-200 bg-white">
@@ -37,10 +40,10 @@ export function RatioCanvas({
         <span className="text-sm font-medium text-slate-900">{ratio.label}</span>
         <span className="text-xs text-slate-500">{ratio.hint}</span>
       </div>
-      <div className="grid place-items-center bg-slate-100 p-3">
+      <div className="overflow-hidden bg-slate-100">
         <canvas
           ref={ref}
-          className="max-h-[320px] w-auto max-w-full border border-slate-200"
+          className="block h-auto w-full"
           style={{ aspectRatio: String(ratio.aspect) }}
         />
       </div>
