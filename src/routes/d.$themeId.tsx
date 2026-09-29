@@ -28,6 +28,8 @@ export const Route = createFileRoute("/d/$themeId")({
         property: "og:description",
         content: "Upload your photo and download ID card, LinkedIn and Instagram versions.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Customizer,
