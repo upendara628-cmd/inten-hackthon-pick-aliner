@@ -33,6 +33,8 @@ export const Route = createFileRoute("/admin/")({
         property: "og:description",
         content: "Upload a template, draw the photo placeholder, and publish a shareable theme.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: AdminCreator,

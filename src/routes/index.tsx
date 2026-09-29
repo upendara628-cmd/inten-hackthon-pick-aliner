@@ -17,6 +17,8 @@ export const Route = createFileRoute("/")({
         content:
           "Create branded photo templates once, share a link, and let anyone export perfectly aligned images.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Home,
