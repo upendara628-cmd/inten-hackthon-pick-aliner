@@ -3,10 +3,20 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Loader2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
-import { BoxEditor, type Box } from "@/components/box-editor";
+import type { Box } from "@/components/box-editor";
+import { LayoutEditor } from "@/components/layout-editor";
 import { RatioCanvas } from "@/components/ratio-canvas";
 import { RATIOS } from "@/lib/ratios";
-import { fileToDataUrl, newId, saveTheme, type ShapeType, type Theme } from "@/lib/store";
+import {
+  DEFAULT_TEXT_POSITIONS,
+  fileToDataUrl,
+  newId,
+  saveTheme,
+  type ShapeType,
+  type TextFieldKey,
+  type TextPositions,
+  type Theme,
+} from "@/lib/store";
 import { loadImage } from "@/lib/render";
 
 export const Route = createFileRoute("/admin/")({
@@ -36,6 +46,11 @@ function AdminCreator() {
   const [bg, setBg] = useState<HTMLImageElement | null>(null);
   const [box, setBox] = useState<Box>(DEFAULT_BOX);
   const [shape, setShape] = useState<ShapeType>("rectangle");
+  const [textPositions, setTextPositions] = useState<TextPositions>({
+    fullName: { ...DEFAULT_TEXT_POSITIONS.fullName },
+    jobTitle: { ...DEFAULT_TEXT_POSITIONS.jobTitle },
+    idCode: { ...DEFAULT_TEXT_POSITIONS.idCode },
+  });
   const [processing, setProcessing] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -63,6 +78,11 @@ function AdminCreator() {
     try {
       setSrc(await fileToDataUrl(file));
       setBox(DEFAULT_BOX);
+      setTextPositions({
+        fullName: { ...DEFAULT_TEXT_POSITIONS.fullName },
+        jobTitle: { ...DEFAULT_TEXT_POSITIONS.jobTitle },
+        idCode: { ...DEFAULT_TEXT_POSITIONS.idCode },
+      });
     } finally {
       setProcessing(false);
     }
@@ -77,6 +97,7 @@ function AdminCreator() {
     box_width: box.width,
     box_height: box.height,
     shape_type: shape,
+    text_positions: textPositions,
     created_at: new Date().toISOString(),
   };
 
@@ -111,7 +132,7 @@ function AdminCreator() {
       <main className="mx-auto max-w-6xl px-5 py-8">
         <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Theme creator</h1>
         <p className="mt-1 text-sm text-slate-600">
-          Upload a base template, then drag on it to mark where the user&apos;s photo goes.
+          Upload a base template, then position the photo and text areas.
         </p>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[320px_1fr]">
@@ -199,14 +220,22 @@ function AdminCreator() {
 
           <div className="space-y-6">
             <div className="border border-slate-200 p-5">
-              <h2 className="text-sm font-semibold text-slate-900">Bounding box editor</h2>
+              <h2 className="text-sm font-semibold text-slate-900">Template layout</h2>
               <p className="mt-1 text-xs text-slate-500">
-                Drag on the template to draw a new box. Drag the box to move it, or its corners to
-                resize.
+                Drag the photo and text areas to position them. Use the corner handles to resize.
               </p>
               <div className="mt-4">
                 {src ? (
-                  <BoxEditor src={src} box={box} shape={shape} onChange={setBox} />
+                  <LayoutEditor
+                    src={src}
+                    photoBox={box}
+                    shape={shape}
+                    textPositions={textPositions}
+                    onPhotoBoxChange={setBox}
+                    onTextPositionChange={(key: TextFieldKey, position) =>
+                      setTextPositions((current) => ({ ...current, [key]: position }))
+                    }
+                  />
                 ) : (
                   <div className="grid h-72 place-items-center border border-dashed border-slate-300 text-sm text-slate-500">
                     Upload a template image to start
@@ -219,7 +248,17 @@ function AdminCreator() {
               <h2 className="text-sm font-semibold text-slate-900">Auto-resized output</h2>
               <div className="mt-3 grid gap-4 sm:grid-cols-3">
                 {RATIOS.map((r) => (
-                  <RatioCanvas key={r.key} ratio={r} theme={preview} background={bg} />
+                  <RatioCanvas
+                    key={r.key}
+                    ratio={r}
+                    theme={preview}
+                    background={bg}
+                    textValues={{
+                      fullName: "FULL NAME",
+                      jobTitle: "JOB TITLE / ROLE",
+                      idCode: "ID / CODE",
+                    }}
+                  />
                 ))}
               </div>
             </div>
