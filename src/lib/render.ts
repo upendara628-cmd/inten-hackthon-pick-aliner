@@ -1,4 +1,4 @@
-import type { Theme } from "./store";
+import { getTextPositions, type Theme, type UserTextValues } from "./store";
 
 export function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -29,6 +29,7 @@ export function renderComposite(
   theme: Theme,
   bg: HTMLImageElement,
   photo?: HTMLImageElement | null,
+  textValues?: UserTextValues,
 ) {
   canvas.width = width;
   canvas.height = height;
@@ -62,6 +63,46 @@ export function renderComposite(
     const p = coverRect(photo.naturalWidth, photo.naturalHeight, bw, bh);
     ctx.drawImage(photo, bx + p.x, by + p.y, p.w, p.h);
     ctx.restore();
+  }
+
+  if (textValues) {
+    const positions = getTextPositions(theme);
+    const fields = [
+      { key: "fullName" as const, value: textValues.fullName, weight: 700 },
+      { key: "jobTitle" as const, value: textValues.jobTitle, weight: 600 },
+      { key: "idCode" as const, value: textValues.idCode, weight: 500 },
+    ];
+
+    for (const field of fields) {
+      const value = field.value.trim();
+      if (!value) continue;
+      const position = positions[field.key];
+      const tx = base.x + (position.x / 100) * base.w;
+      const ty = base.y + (position.y / 100) * base.h;
+      const tw = (position.width / 100) * base.w;
+      const th = (position.height / 100) * base.h;
+      let fontSize = Math.max(12, th * 0.72);
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(tx, ty, tw, th);
+      ctx.clip();
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      while (fontSize > 12) {
+        ctx.font = `${field.weight} ${fontSize}px Arial, sans-serif`;
+        if (ctx.measureText(value).width <= tw * 0.96) break;
+        fontSize -= 2;
+      }
+      ctx.font = `${field.weight} ${fontSize}px Arial, sans-serif`;
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
+      ctx.lineWidth = Math.max(2, fontSize * 0.08);
+      ctx.strokeText(value, tx + tw / 2, ty + th / 2, tw * 0.96);
+      ctx.fillStyle = "#111827";
+      ctx.fillText(value, tx + tw / 2, ty + th / 2, tw * 0.96);
+      ctx.restore();
+    }
   }
 }
 

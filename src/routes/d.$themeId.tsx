@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ImagePlus, Loader2 } from "lucide-react";
+import { ImagePlus, Loader2, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
 import { RatioCanvas } from "@/components/ratio-canvas";
 import { RATIOS } from "@/lib/ratios";
-import { fileToDataUrl, getTheme, type Theme } from "@/lib/store";
+import {
+  fileToDataUrl,
+  getTheme,
+  type Theme,
+  type UserTextValues,
+} from "@/lib/store";
 import { loadImage } from "@/lib/render";
 
 export const Route = createFileRoute("/d/$themeId")({
@@ -23,6 +28,8 @@ export const Route = createFileRoute("/d/$themeId")({
         property: "og:description",
         content: "Upload your photo and download ID card, LinkedIn and Instagram versions.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Customizer,
@@ -35,6 +42,11 @@ function Customizer() {
   const [photo, setPhoto] = useState<HTMLImageElement | null>(null);
   const [busy, setBusy] = useState(false);
   const [dragging, setDragging] = useState(false);
+  const [textValues, setTextValues] = useState<UserTextValues>({
+    fullName: "",
+    jobTitle: "",
+    idCode: "",
+  });
 
   useEffect(() => {
     getTheme(themeId).then(async (t) => {
@@ -96,62 +108,105 @@ function Customizer() {
   return (
     <div className="min-h-screen bg-white">
       <SiteHeader />
-      <main className="mx-auto max-w-5xl px-5 py-10">
-        <div className="text-center">
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">{theme.title}</h1>
+      <main className="mx-auto max-w-6xl px-5 py-8">
+        <div>
+          <h1 className="text-2xl font-semibold text-slate-900">
+            Customizing: {theme.title}
+          </h1>
           <p className="mt-1 text-sm text-slate-600">
-            Upload one photo — we place it in the right spot and export every size.
+            Add your details once, then download any format below.
           </p>
         </div>
 
-        <label
-          onDragOver={(e) => {
-            e.preventDefault();
-            setDragging(true);
-          }}
-          onDragLeave={() => setDragging(false)}
-          onDrop={(e) => {
-            e.preventDefault();
-            setDragging(false);
-            handleFile(e.dataTransfer.files?.[0]);
-          }}
-          className={`mx-auto mt-8 flex max-w-xl cursor-pointer flex-col items-center justify-center gap-2 border border-dashed px-6 py-10 text-sm ${
-            dragging ? "border-blue-600 bg-blue-50" : "border-slate-300 bg-slate-50"
-          }`}
-        >
-          {busy ? (
-            <>
-              <Loader2 className="h-5 w-5 animate-spin text-slate-600" />
-              <span className="text-slate-600">Processing your photo…</span>
-            </>
-          ) : (
-            <>
-              <ImagePlus className="h-5 w-5 text-slate-600" />
-              <span className="font-medium text-slate-900">
-                {photo ? "Replace photo" : "Upload photo"}
-              </span>
-              <span className="text-xs text-slate-500">Drag and drop, or click to browse</span>
-            </>
-          )}
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => handleFile(e.target.files?.[0])}
-          />
-        </label>
+        <div className="mt-7 grid items-start gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
+          <section className="border border-slate-200 bg-white p-5" aria-label="Your details">
+            <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
+              <UserRound className="h-4 w-4 text-slate-600" />
+              <h2 className="text-sm font-semibold text-slate-900">Your details</h2>
+            </div>
 
-        <div className="mt-10 grid gap-4 sm:grid-cols-3">
-          {RATIOS.map((r) => (
-            <RatioCanvas
-              key={r.key}
-              ratio={r}
-              theme={theme}
-              background={bg}
-              photo={photo}
-              downloadable
-            />
-          ))}
+            <label
+              onDragOver={(event) => {
+                event.preventDefault();
+                setDragging(true);
+              }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={(event) => {
+                event.preventDefault();
+                setDragging(false);
+                handleFile(event.dataTransfer.files?.[0]);
+              }}
+              className={`mt-5 flex cursor-pointer flex-col items-center justify-center gap-2 border border-dashed px-4 py-6 text-center text-sm ${
+                dragging ? "border-blue-600 bg-blue-50" : "border-slate-300 bg-slate-50"
+              }`}
+            >
+              {busy ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin text-slate-600" />
+                  <span className="text-slate-600">Processing photo…</span>
+                </>
+              ) : (
+                <>
+                  <ImagePlus className="h-5 w-5 text-slate-600" />
+                  <span className="font-medium text-slate-900">
+                    {photo ? "Replace profile photo" : "Upload profile photo"}
+                  </span>
+                  <span className="text-xs text-slate-500">Drag and drop, or browse</span>
+                </>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(event) => handleFile(event.target.files?.[0])}
+              />
+            </label>
+
+            <div className="mt-5 space-y-4">
+              {(
+                [
+                  ["fullName", "Full name", "e.g. Taylor Morgan"],
+                  ["jobTitle", "Job title / role", "e.g. Product Designer"],
+                  ["idCode", "ID / code", "e.g. EMP-1042"],
+                ] as const
+              ).map(([key, label, placeholder]) => (
+                <div key={key}>
+                  <label htmlFor={key} className="text-sm font-medium text-slate-900">
+                    {label}
+                  </label>
+                  <input
+                    id={key}
+                    value={textValues[key]}
+                    onChange={(event) =>
+                      setTextValues((current) => ({ ...current, [key]: event.target.value }))
+                    }
+                    placeholder={placeholder}
+                    maxLength={80}
+                    className="mt-1.5 w-full border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600"
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section aria-labelledby="preview-heading">
+            <h2 id="preview-heading" className="text-sm font-semibold text-slate-900">
+              Live previews
+            </h2>
+            <div className="mt-3 grid items-start gap-4 sm:grid-cols-3">
+              {RATIOS.map((ratio) => (
+                <RatioCanvas
+                  key={ratio.key}
+                  ratio={ratio}
+                  theme={theme}
+                  background={bg}
+                  photo={photo}
+                  textValues={textValues}
+                  downloadable
+                />
+              ))}
+            </div>
+          </section>
         </div>
       </main>
     </div>

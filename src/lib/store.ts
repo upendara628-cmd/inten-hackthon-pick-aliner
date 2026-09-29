@@ -1,4 +1,26 @@
 export type ShapeType = "rectangle" | "circle";
+export type TextFieldKey = "fullName" | "jobTitle" | "idCode";
+
+export interface TextPosition {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export type TextPositions = Record<TextFieldKey, TextPosition>;
+
+export interface UserTextValues {
+  fullName: string;
+  jobTitle: string;
+  idCode: string;
+}
+
+export const DEFAULT_TEXT_POSITIONS: TextPositions = {
+  fullName: { x: 12, y: 61, width: 76, height: 8 },
+  jobTitle: { x: 18, y: 71, width: 64, height: 6 },
+  idCode: { x: 28, y: 81, width: 44, height: 5 },
+};
 
 export interface Theme {
   id: string;
@@ -9,7 +31,12 @@ export interface Theme {
   box_width: number;
   box_height: number;
   shape_type: ShapeType;
+  text_positions?: TextPositions;
   created_at: string;
+}
+
+export function getTextPositions(theme: Theme): TextPositions {
+  return theme.text_positions ?? DEFAULT_TEXT_POSITIONS;
 }
 
 const DB_NAME = "theme-studio";
