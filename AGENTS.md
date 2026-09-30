@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Theme layout geometry is stored as percentages of the source template so one definition maps consistently to every output ratio.
+- Theme text fields are dynamic JSON records; font size is stored as a percentage of source-template height so exports scale consistently.
