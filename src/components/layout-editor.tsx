@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
 import type { ShapeType, TextField, TextPosition } from "@/lib/store";
 import type { Box } from "@/components/box-editor";
 
