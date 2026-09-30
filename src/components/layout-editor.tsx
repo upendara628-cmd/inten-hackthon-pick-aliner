@@ -1,15 +1,9 @@
-import { useCallback, useRef, useState } from "react";
-import type { ShapeType, TextFieldKey, TextPosition } from "@/lib/store";
+import { useCallback, useRef } from "react";
+import type { ShapeType, TextField, TextPosition } from "@/lib/store";
 import type { Box } from "@/components/box-editor";
 
-type Selection = "photo" | TextFieldKey;
+type Selection = "photo" | string;
 type Mode = "move" | "nw" | "ne" | "sw" | "se";
-
-const LABELS: Record<TextFieldKey, string> = {
-  fullName: "Full name",
-  jobTitle: "Job title",
-  idCode: "ID / code",
-};
 
 const clamp = (value: number, min = 0, max = 100) => Math.min(max, Math.max(min, value));
 
@@ -17,16 +11,20 @@ export function LayoutEditor({
   src,
   photoBox,
   shape,
-  textPositions,
+  textFields,
+  selected,
   onPhotoBoxChange,
-  onTextPositionChange,
+  onTextFieldChange,
+  onSelectionChange,
 }: {
   src: string;
   photoBox: Box;
   shape: ShapeType;
-  textPositions: Record<TextFieldKey, TextPosition>;
+  textFields: TextField[];
+  selected: Selection;
   onPhotoBoxChange: (box: Box) => void;
-  onTextPositionChange: (key: TextFieldKey, position: TextPosition) => void;
+  onTextFieldChange: (id: string, position: TextPosition) => void;
+  onSelectionChange: (selection: Selection) => void;
 }) {
   const frameRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{
@@ -36,7 +34,6 @@ export function LayoutEditor({
     startY: number;
     start: Box;
   } | null>(null);
-  const [selected, setSelected] = useState<Selection>("photo");
 
   const pointerPercent = useCallback((event: React.PointerEvent) => {
     const frame = frameRef.current;
@@ -54,7 +51,7 @@ export function LayoutEditor({
     const point = pointerPercent(event);
     if (!point) return;
     event.currentTarget.setPointerCapture(event.pointerId);
-    setSelected(selection);
+    onSelectionChange(selection);
     dragRef.current = {
       selection,
       mode,
@@ -93,7 +90,7 @@ export function LayoutEditor({
     }
 
     if (drag.selection === "photo") onPhotoBoxChange(next);
-    else onTextPositionChange(drag.selection, next);
+    else onTextFieldChange(drag.selection, next);
   };
 
   const finish = () => {
@@ -145,9 +142,7 @@ export function LayoutEditor({
     >
       <img src={src} alt="Theme template" className="block w-full select-none" draggable={false} />
       {overlay("photo", photoBox, "Photo")}
-      {(Object.keys(textPositions) as TextFieldKey[]).map((key) =>
-        overlay(key, textPositions[key], LABELS[key]),
-      )}
+      {textFields.map((field) => overlay(field.id, field, field.label))}
     </div>
   );
 }

@@ -1,5 +1,7 @@
 export type ShapeType = "rectangle" | "circle";
 export type TextFieldKey = "fullName" | "jobTitle" | "idCode";
+export type TextAlign = "left" | "center" | "right";
+export type FontWeight = "normal" | "bold";
 
 export interface TextPosition {
   x: number;
@@ -10,17 +12,52 @@ export interface TextPosition {
 
 export type TextPositions = Record<TextFieldKey, TextPosition>;
 
-export interface UserTextValues {
-  fullName: string;
-  jobTitle: string;
-  idCode: string;
+export interface TextField extends TextPosition {
+  id: string;
+  label: string;
+  font_size: number;
+  color: string;
+  align: TextAlign;
+  font_weight: FontWeight;
 }
+
+export type UserTextValues = Record<string, string>;
 
 export const DEFAULT_TEXT_POSITIONS: TextPositions = {
   fullName: { x: 12, y: 61, width: 76, height: 8 },
   jobTitle: { x: 18, y: 71, width: 64, height: 6 },
   idCode: { x: 28, y: 81, width: 44, height: 5 },
 };
+
+export const DEFAULT_TEXT_FIELDS: TextField[] = [
+  {
+    id: "fullName",
+    label: "Full Name",
+    ...DEFAULT_TEXT_POSITIONS.fullName,
+    font_size: 4.8,
+    color: "#111827",
+    align: "center",
+    font_weight: "bold",
+  },
+  {
+    id: "jobTitle",
+    label: "Job Title",
+    ...DEFAULT_TEXT_POSITIONS.jobTitle,
+    font_size: 3.4,
+    color: "#111827",
+    align: "center",
+    font_weight: "normal",
+  },
+  {
+    id: "idCode",
+    label: "Employee ID",
+    ...DEFAULT_TEXT_POSITIONS.idCode,
+    font_size: 2.8,
+    color: "#111827",
+    align: "center",
+    font_weight: "normal",
+  },
+];
 
 export interface Theme {
   id: string;
@@ -31,12 +68,20 @@ export interface Theme {
   box_width: number;
   box_height: number;
   shape_type: ShapeType;
+  text_fields?: TextField[];
+  /** Legacy placement format retained so existing browser-saved themes still load. */
   text_positions?: TextPositions;
   created_at: string;
 }
 
 export function getTextPositions(theme: Theme): TextPositions {
   return theme.text_positions ?? DEFAULT_TEXT_POSITIONS;
+}
+
+export function getTextFields(theme: Theme): TextField[] {
+  if (theme.text_fields) return theme.text_fields;
+  const positions = getTextPositions(theme);
+  return DEFAULT_TEXT_FIELDS.map((field) => ({ ...field, ...positions[field.id as TextFieldKey] }));
 }
 
 const DB_NAME = "theme-studio";

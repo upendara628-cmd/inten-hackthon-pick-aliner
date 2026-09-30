@@ -7,6 +7,7 @@ import { RatioCanvas } from "@/components/ratio-canvas";
 import { RATIOS } from "@/lib/ratios";
 import {
   fileToDataUrl,
+  getTextFields,
   getTheme,
   type Theme,
   type UserTextValues,
@@ -42,16 +43,13 @@ function Customizer() {
   const [photo, setPhoto] = useState<HTMLImageElement | null>(null);
   const [busy, setBusy] = useState(false);
   const [dragging, setDragging] = useState(false);
-  const [textValues, setTextValues] = useState<UserTextValues>({
-    fullName: "",
-    jobTitle: "",
-    idCode: "",
-  });
+  const [textValues, setTextValues] = useState<UserTextValues>({});
 
   useEffect(() => {
     getTheme(themeId).then(async (t) => {
       if (!t) return setTheme(null);
       setTheme(t);
+      setTextValues(Object.fromEntries(getTextFields(t).map((field) => [field.id, ""])));
       setBg(await loadImage(t.background_image_url));
     });
   }, [themeId]);
@@ -163,24 +161,18 @@ function Customizer() {
             </label>
 
             <div className="mt-5 space-y-4">
-              {(
-                [
-                  ["fullName", "Full name", "e.g. Taylor Morgan"],
-                  ["jobTitle", "Job title / role", "e.g. Product Designer"],
-                  ["idCode", "ID / code", "e.g. EMP-1042"],
-                ] as const
-              ).map(([key, label, placeholder]) => (
-                <div key={key}>
-                  <label htmlFor={key} className="text-sm font-medium text-slate-900">
-                    {label}
+              {getTextFields(theme).map((field) => (
+                <div key={field.id}>
+                  <label htmlFor={`field-${field.id}`} className="text-sm font-medium text-slate-900">
+                    {field.label}
                   </label>
                   <input
-                    id={key}
-                    value={textValues[key]}
+                    id={`field-${field.id}`}
+                    value={textValues[field.id] ?? ""}
                     onChange={(event) =>
-                      setTextValues((current) => ({ ...current, [key]: event.target.value }))
+                      setTextValues((current) => ({ ...current, [field.id]: event.target.value }))
                     }
-                    placeholder={placeholder}
+                    placeholder={`Enter ${field.label.toLowerCase()}`}
                     maxLength={80}
                     className="mt-1.5 w-full border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600"
                   />
