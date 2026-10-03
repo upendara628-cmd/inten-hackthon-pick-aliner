@@ -100,8 +100,8 @@ function Customizer() {
         <div className="mx-auto max-w-6xl px-5 py-16">
           <h1 className="text-xl font-semibold text-slate-900">Theme not found</h1>
           <p className="mt-2 max-w-lg text-sm text-slate-600">
-            This link points to a theme that isn&apos;t available on this device. Themes are stored
-            locally in the browser that created them.
+            This link doesn&apos;t contain a valid theme. Ask the theme creator to copy the full
+            share link from the Theme Gallery and send it again.
           </p>
           <Link
             to="/admin"
