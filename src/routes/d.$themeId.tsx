@@ -51,8 +51,8 @@ function Customizer() {
     getTheme(themeId).then(async (stored) => {
       let t = stored;
       if (!t && typeof window !== "undefined") {
-        const match = window.location.hash.match(/#t=([A-Za-z0-9_-]+)/);
-        const decoded = match ? decodeTheme(match[1]) : null;
+        const encoded = window.location.hash.match(/#t=([A-Za-z0-9_-]+)/)?.[1];
+        const decoded = encoded ? decodeTheme(encoded) : null;
         if (decoded && decoded.id === themeId) {
           t = decoded;
           saveTheme(decoded).catch(() => {});
