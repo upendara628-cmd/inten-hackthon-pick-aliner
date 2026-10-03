@@ -48,7 +48,16 @@ function Customizer() {
   const [textValues, setTextValues] = useState<UserTextValues>({});
 
   useEffect(() => {
-    getTheme(themeId).then(async (t) => {
+    getTheme(themeId).then(async (stored) => {
+      let t = stored;
+      if (!t && typeof window !== "undefined") {
+        const match = window.location.hash.match(/#t=([A-Za-z0-9_-]+)/);
+        const decoded = match ? decodeTheme(match[1]) : null;
+        if (decoded && decoded.id === themeId) {
+          t = decoded;
+          saveTheme(decoded).catch(() => {});
+        }
+      }
       if (!t) return setTheme(null);
       setTheme(t);
       setTextValues(Object.fromEntries(getTextFields(t).map((field) => [field.id, ""])));

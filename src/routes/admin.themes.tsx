@@ -95,12 +95,12 @@ function ThemeGallery() {
                     </p>
                   </div>
                   <p className="truncate border border-slate-200 bg-slate-50 px-2 py-1 font-mono text-[11px] text-slate-600">
-                    {shareLink(t.id)}
+                    {shareLink(t)}
                   </p>
                   <div className="flex gap-2">
                     <button
                       type="button"
-                      onClick={() => copy(t.id)}
+                      onClick={() => copy(t)}
                       className="flex flex-1 items-center justify-center gap-1.5 border border-slate-800 bg-slate-900 px-2 py-1.5 text-xs font-medium text-white hover:bg-slate-800"
                     >
                       <Copy className="h-3.5 w-3.5" /> Copy link
