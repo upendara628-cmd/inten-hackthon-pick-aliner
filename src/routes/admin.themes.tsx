@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Copy, ExternalLink, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
-import { deleteTheme, listThemes, type Theme } from "@/lib/store";
+import { deleteTheme, listThemes, shareLinkFor, type Theme } from "@/lib/store";
 
 export const Route = createFileRoute("/admin/themes")({
   head: () => ({
