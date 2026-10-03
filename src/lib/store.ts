@@ -135,6 +135,37 @@ export function newId(): string {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
 
+/** Encode a theme into a URL-safe string so share links work on any device. */
+export function encodeTheme(theme: Theme): string {
+  const json = JSON.stringify(theme);
+  const bytes = new TextEncoder().encode(json);
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+/** Decode a theme embedded in a share link. Returns null when invalid. */
+export function decodeTheme(encoded: string): Theme | null {
+  try {
+    const base64 = encoded.replace(/-/g, "+").replace(/_/g, "/");
+    const binary = atob(base64);
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    const theme = JSON.parse(new TextDecoder().decode(bytes)) as Theme;
+    if (!theme || typeof theme.id !== "string" || typeof theme.background_image_url !== "string") {
+      return null;
+    }
+    return theme;
+  } catch {
+    return null;
+  }
+}
+
+/** Build a share link that carries the full theme so it opens on any device. */
+export function shareLinkFor(theme: Theme): string {
+  const origin = typeof window === "undefined" ? "" : window.location.origin;
+  return `${origin}/d/${theme.id}#t=${encodeTheme(theme)}`;
+}
+
 export function fileToDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
