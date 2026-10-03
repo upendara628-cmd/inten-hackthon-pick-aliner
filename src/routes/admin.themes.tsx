@@ -32,12 +32,11 @@ function ThemeGallery() {
     listThemes().then(setThemes);
   }, []);
 
-  const shareLink = (id: string) =>
-    `${typeof window === "undefined" ? "" : window.location.origin}/d/${id}`;
+  const shareLink = (theme: Theme) => shareLinkFor(theme);
 
-  const copy = async (id: string) => {
+  const copy = async (theme: Theme) => {
     try {
-      await navigator.clipboard.writeText(shareLink(id));
+      await navigator.clipboard.writeText(shareLink(theme));
       toast.success("Share link copied");
     } catch {
       toast.error("Copy failed — select the link manually");

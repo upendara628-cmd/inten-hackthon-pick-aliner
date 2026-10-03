@@ -6,9 +6,11 @@ import { SiteHeader } from "@/components/site-header";
 import { RatioCanvas } from "@/components/ratio-canvas";
 import { RATIOS } from "@/lib/ratios";
 import {
+  decodeTheme,
   fileToDataUrl,
   getTextFields,
   getTheme,
+  saveTheme,
   type Theme,
   type UserTextValues,
 } from "@/lib/store";
