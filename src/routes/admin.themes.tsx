@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Copy, ExternalLink, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
-import { deleteTheme, listThemes, type Theme } from "@/lib/store";
+import { deleteTheme, listThemes, shareLinkFor, type Theme } from "@/lib/store";
 
 export const Route = createFileRoute("/admin/themes")({
   head: () => ({
@@ -32,12 +32,11 @@ function ThemeGallery() {
     listThemes().then(setThemes);
   }, []);
 
-  const shareLink = (id: string) =>
-    `${typeof window === "undefined" ? "" : window.location.origin}/d/${id}`;
+  const shareLink = (theme: Theme) => shareLinkFor(theme);
 
-  const copy = async (id: string) => {
+  const copy = async (theme: Theme) => {
     try {
-      await navigator.clipboard.writeText(shareLink(id));
+      await navigator.clipboard.writeText(shareLink(theme));
       toast.success("Share link copied");
     } catch {
       toast.error("Copy failed — select the link manually");
@@ -96,12 +95,12 @@ function ThemeGallery() {
                     </p>
                   </div>
                   <p className="truncate border border-slate-200 bg-slate-50 px-2 py-1 font-mono text-[11px] text-slate-600">
-                    {shareLink(t.id)}
+                    {shareLink(t)}
                   </p>
                   <div className="flex gap-2">
                     <button
                       type="button"
-                      onClick={() => copy(t.id)}
+                      onClick={() => copy(t)}
                       className="flex flex-1 items-center justify-center gap-1.5 border border-slate-800 bg-slate-900 px-2 py-1.5 text-xs font-medium text-white hover:bg-slate-800"
                     >
                       <Copy className="h-3.5 w-3.5" /> Copy link
