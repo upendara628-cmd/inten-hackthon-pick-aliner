@@ -44,9 +44,76 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
+import {
+  saveThemeToServer,
+  getThemeFromServer,
+  listThemesFromServer,
+  deleteThemeFromServer,
+} from "./lib/server-themes";
+import { handleWebFetchApi } from "./lib/server-api-handler";
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const hackathonRes = await handleWebFetchApi(request);
+      if (hackathonRes) return hackathonRes;
+
+      const url = new URL(request.url);
+      if (url.pathname.startsWith("/api/themes")) {
+        const parts = url.pathname
+          .replace(/^\/api\/themes\/?/, "")
+          .split("/")
+          .filter(Boolean);
+        const themeId = parts[0];
+
+        if (request.method === "GET") {
+          if (themeId) {
+            const theme = getThemeFromServer(themeId);
+            if (theme) {
+              return new Response(JSON.stringify(theme), {
+                headers: { "content-type": "application/json" },
+              });
+            }
+            return new Response(JSON.stringify({ error: "Theme not found" }), {
+              status: 404,
+              headers: { "content-type": "application/json" },
+            });
+          }
+          const list = listThemesFromServer();
+          return new Response(JSON.stringify(list), {
+            headers: { "content-type": "application/json" },
+          });
+        }
+
+        if (request.method === "POST") {
+          try {
+            const theme = (await request.json()) as any;
+            if (!theme?.id) {
+              return new Response(JSON.stringify({ error: "Missing theme id" }), {
+                status: 400,
+                headers: { "content-type": "application/json" },
+              });
+            }
+            saveThemeToServer(theme);
+            return new Response(JSON.stringify({ success: true, id: theme.id }), {
+              headers: { "content-type": "application/json" },
+            });
+          } catch {
+            return new Response(JSON.stringify({ error: "Invalid JSON" }), {
+              status: 400,
+              headers: { "content-type": "application/json" },
+            });
+          }
+        }
+
+        if (request.method === "DELETE" && themeId) {
+          deleteThemeFromServer(themeId);
+          return new Response(JSON.stringify({ success: true }), {
+            headers: { "content-type": "application/json" },
+          });
+        }
+      }
+
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);

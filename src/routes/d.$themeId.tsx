@@ -4,13 +4,16 @@ import { ImagePlus, Loader2, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
 import { RatioCanvas } from "@/components/ratio-canvas";
+import { PhotoAdjuster } from "@/components/photo-adjuster";
 import { RATIOS } from "@/lib/ratios";
 import {
   decodeTheme,
+  DEFAULT_PHOTO_ADJUSTMENT,
   fileToDataUrl,
   getTextFields,
   getTheme,
   saveTheme,
+  type PhotoAdjustment,
   type Theme,
   type UserTextValues,
 } from "@/lib/store";
@@ -46,6 +49,7 @@ function Customizer() {
   const [busy, setBusy] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [textValues, setTextValues] = useState<UserTextValues>({});
+  const [photoAdjust, setPhotoAdjust] = useState<PhotoAdjustment>(DEFAULT_PHOTO_ADJUSTMENT);
 
   useEffect(() => {
     getTheme(themeId).then(async (stored) => {
@@ -74,6 +78,7 @@ function Customizer() {
     setBusy(true);
     try {
       setPhoto(await loadImage(await fileToDataUrl(file)));
+      setPhotoAdjust(DEFAULT_PHOTO_ADJUSTMENT);
       toast.success("Photo aligned into the template");
     } catch {
       toast.error("Could not read that photo.");
@@ -84,10 +89,11 @@ function Customizer() {
 
   if (theme === undefined) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-studlyf-ambient font-['Poppins',sans-serif]">
         <SiteHeader />
-        <div className="mx-auto flex max-w-6xl items-center gap-2 px-5 py-16 text-sm text-slate-600">
-          <Loader2 className="h-4 w-4 animate-spin" /> Loading theme…
+        <div className="mx-auto flex max-w-6xl items-center justify-center gap-3 px-5 py-24 text-sm font-semibold text-[#6C2BFF]">
+          <Loader2 className="h-5 w-5 animate-spin" />
+          <span>Loading theme template…</span>
         </div>
       </div>
     );
@@ -95,45 +101,61 @@ function Customizer() {
 
   if (theme === null) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-studlyf-ambient font-['Poppins',sans-serif]">
         <SiteHeader />
-        <div className="mx-auto max-w-6xl px-5 py-16">
-          <h1 className="text-xl font-semibold text-slate-900">Theme not found</h1>
-          <p className="mt-2 max-w-lg text-sm text-slate-600">
-            This link doesn&apos;t contain a valid theme. Ask the theme creator to copy the full
-            share link from the Theme Gallery and send it again.
+        <div className="mx-auto max-w-xl px-5 py-24 text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-purple-100 text-[#6C2BFF]">
+            <ImagePlus className="h-8 w-8" />
+          </div>
+          <h1 className="mt-4 text-2xl font-extrabold text-slate-900">Theme Not Found</h1>
+          <p className="mt-2 text-sm text-slate-600">
+            This link doesn&apos;t contain a valid theme record. Ask the creator to share the link
+            again or browse the gallery.
           </p>
-          <Link
-            to="/admin"
-            className="mt-6 inline-block border border-slate-300 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-slate-50"
-          >
-            Go to Admin Portal
-          </Link>
+          <div className="mt-6 flex justify-center gap-3">
+            <Link to="/gallery" className="btn-studlyf-primary px-6 py-2.5 text-xs font-bold">
+              Browse Gallery
+            </Link>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-studlyf-ambient font-['Poppins',sans-serif] text-slate-800">
       <SiteHeader />
-      <main className="mx-auto max-w-6xl px-5 py-8">
+      <main className="mx-auto max-w-6xl px-5 py-10">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">
-            Customizing: {theme.title}
+          <span className="inline-block rounded-full bg-purple-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#6C2BFF]">
+            Participant Customizer
+          </span>
+          <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+            {theme.title}
           </h1>
           <p className="mt-1 text-sm text-slate-600">
-            Add your details once, then download any format below.
+            Upload your photo, adjust the text fields, and download print &amp; social ready formats
+            below.
           </p>
         </div>
 
-        <div className="mt-7 grid items-start gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
-          <section className="border border-slate-200 bg-white p-5" aria-label="Your details">
-            <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
-              <UserRound className="h-4 w-4 text-slate-600" />
-              <h2 className="text-sm font-semibold text-slate-900">Your details</h2>
+        <div className="mt-8 grid items-start gap-8 lg:grid-cols-[320px_minmax(0,1fr)]">
+          {/* Left Controls Card */}
+          <section
+            className="rounded-2xl border border-purple-100/90 bg-white/95 p-6 shadow-md shadow-purple-500/5 backdrop-blur-md"
+            aria-label="Your details"
+          >
+            <div className="flex items-center gap-2.5 border-b border-purple-50 pb-4">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-100 text-[#6C2BFF]">
+                <UserRound className="h-4 w-4" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-slate-900">Your Details</h2>
+                <p className="text-[11px] text-slate-500">Photo &amp; credentials</p>
+              </div>
             </div>
 
+            {/* Photo Upload Zone */}
             <label
               onDragOver={(event) => {
                 event.preventDefault();
@@ -145,22 +167,30 @@ function Customizer() {
                 setDragging(false);
                 handleFile(event.dataTransfer.files?.[0]);
               }}
-              className={`mt-5 flex cursor-pointer flex-col items-center justify-center gap-2 border border-dashed px-4 py-6 text-center text-sm ${
-                dragging ? "border-blue-600 bg-blue-50" : "border-slate-300 bg-slate-50"
+              className={`mt-5 flex cursor-pointer flex-col items-center justify-center gap-2.5 rounded-2xl border-2 border-dashed p-6 text-center text-sm transition-all duration-200 ${
+                dragging
+                  ? "border-[#6C2BFF] bg-purple-50"
+                  : "border-purple-200 bg-purple-50/40 hover:border-purple-300 hover:bg-purple-50/70"
               }`}
             >
               {busy ? (
                 <>
-                  <Loader2 className="h-5 w-5 animate-spin text-slate-600" />
-                  <span className="text-slate-600">Processing photo…</span>
+                  <Loader2 className="h-6 w-6 animate-spin text-[#6C2BFF]" />
+                  <span className="text-xs font-semibold text-purple-900">Processing photo…</span>
                 </>
               ) : (
                 <>
-                  <ImagePlus className="h-5 w-5 text-slate-600" />
-                  <span className="font-medium text-slate-900">
-                    {photo ? "Replace profile photo" : "Upload profile photo"}
-                  </span>
-                  <span className="text-xs text-slate-500">Drag and drop, or browse</span>
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-[#6C2BFF] shadow-xs">
+                    <ImagePlus className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <span className="block text-xs font-bold text-slate-900">
+                      {photo ? "Replace Profile Photo" : "Upload Profile Photo"}
+                    </span>
+                    <span className="text-[11px] text-slate-500">
+                      Drag &amp; drop or click to browse
+                    </span>
+                  </div>
                 </>
               )}
               <input
@@ -171,10 +201,27 @@ function Customizer() {
               />
             </label>
 
-            <div className="mt-5 space-y-4">
+            {/* Interactive Photo Framing & Scaling Controls */}
+            {photo && (
+              <div className="mt-5 border-t border-purple-100 pt-5">
+                <PhotoAdjuster
+                  photo={photo}
+                  shape={theme.shape_type}
+                  adjust={photoAdjust}
+                  onChange={setPhotoAdjust}
+                  onReset={() => setPhotoAdjust(DEFAULT_PHOTO_ADJUSTMENT)}
+                />
+              </div>
+            )}
+
+            {/* Text Fields */}
+            <div className="mt-6 space-y-4">
               {getTextFields(theme).map((field) => (
                 <div key={field.id}>
-                  <label htmlFor={`field-${field.id}`} className="text-sm font-medium text-slate-900">
+                  <label
+                    htmlFor={`field-${field.id}`}
+                    className="block text-xs font-bold uppercase tracking-wider text-slate-700"
+                  >
                     {field.label}
                   </label>
                   <input
@@ -185,18 +232,27 @@ function Customizer() {
                     }
                     placeholder={`Enter ${field.label.toLowerCase()}`}
                     maxLength={80}
-                    className="mt-1.5 w-full border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600"
+                    className="mt-1.5 w-full rounded-xl border border-purple-200/80 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition-all focus:border-[#6C2BFF] focus:ring-2 focus:ring-purple-200"
                   />
                 </div>
               ))}
             </div>
           </section>
 
+          {/* Right Live Previews Grid */}
           <section aria-labelledby="preview-heading">
-            <h2 id="preview-heading" className="text-sm font-semibold text-slate-900">
-              Live previews
-            </h2>
-            <div className="mt-3 grid items-start gap-4 sm:grid-cols-3">
+            <div className="flex items-center justify-between border-b border-purple-100 pb-3">
+              <div>
+                <h2 id="preview-heading" className="text-lg font-bold text-slate-900">
+                  Live Previews &amp; Downloads
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Download high-resolution print and social assets in one click.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 grid items-start gap-6 sm:grid-cols-3">
               {RATIOS.map((ratio) => (
                 <RatioCanvas
                   key={ratio.key}
@@ -204,6 +260,8 @@ function Customizer() {
                   theme={theme}
                   background={bg}
                   photo={photo}
+                  photoAdjust={photoAdjust}
+                  onAdjustChange={setPhotoAdjust}
                   textValues={textValues}
                   downloadable
                 />

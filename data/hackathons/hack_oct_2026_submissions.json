@@ -1,0 +1,17 @@
+[
+  {
+    "id": "sub_vb0aww1x",
+    "hackathonId": "hack_oct_2026",
+    "participationId": "part_mhread32",
+    "participantType": "individual",
+    "participantName": "Alex Rivera",
+    "projectTitle": "Framewise Badging Engine",
+    "description": "Production badge generation system with canvas auto-alignment.",
+    "githubUrl": "https://github.com/alexrivera/framewise-badging",
+    "demoUrl": "https://framewise.demo.dev",
+    "submittedAt": "2026-10-08T16:57:20.532Z",
+    "deadlineAt": "2026-10-08T22:57:20.408Z",
+    "status": "SUBMITTED",
+    "lateBySeconds": 0
+  }
+]

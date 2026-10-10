@@ -1,0 +1,33 @@
+{
+  "id": "hack_oct_2026",
+  "name": "Oct 2026 Innovation Sprint",
+  "shortDescription": "Build next-gen student identity and credential infrastructure.",
+  "fullDescription": "Comprehensive campus engineering hackathon to design secure automated solutions.",
+  "organizerName": "Event Organizer Sir",
+  "organizerId": "org_admin",
+  "venue": "Campus Tech Hall / Hybrid",
+  "startDate": "2026-10-15T09:00:00.000Z",
+  "endDate": "2026-10-16T18:00:00.000Z",
+  "participationType": "both",
+  "minTeamSize": 2,
+  "maxTeamSize": 4,
+  "teamRules": "Inter-branch teams allowed.",
+  "timerMode": "individual",
+  "globalStartTime": "2026-10-15T09:00:00.000Z",
+  "globalEndTime": "2026-10-16T18:00:00.000Z",
+  "individualDurationMinutes": 360,
+  "submissionPolicy": "allow_late",
+  "accessType": "public",
+  "status": "PUBLISHED",
+  "problemStatement": {
+    "title": "Automated Student Verification & Cryptographic Badging",
+    "content": "Develop a modern, reliable system that generates secure participant credentials and integrates with event scanners.",
+    "objective": "Eliminate duplicate badge forgery and automate fast verification at entry checkpoints.",
+    "requirements": "1. Fast sub-second alignment\n2. Real-time exports\n3. Cryptographic hash check",
+    "constraints": "Client-side processing preferred to maintain attendee privacy.",
+    "expectedOutput": "Deployable web app and verified GitHub repository.",
+    "evaluationCriteria": "Innovation: 30%, Code Quality: 30%, UI/UX: 20%, Execution: 20%"
+  },
+  "updatedAt": "2026-10-08T16:57:20.311Z",
+  "createdAt": "2026-10-08T16:57:20.311Z"
+}

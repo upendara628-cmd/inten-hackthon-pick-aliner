@@ -1,0 +1,40 @@
+[
+  {
+    "id": "org_admin",
+    "email": "organizer@event.com",
+    "name": "Event Organizer Sir",
+    "role": "organizer",
+    "institution": "Tech University",
+    "token": "tok_organizer_master"
+  },
+  {
+    "id": "part_demo_1",
+    "email": "participant@student.edu",
+    "name": "Alex Rivera",
+    "role": "participant",
+    "rollNumber": "CS-2026-042",
+    "institution": "Institute of Technology",
+    "phone": "+91 98765 43210",
+    "token": "tok_participant_demo"
+  },
+  {
+    "id": "usr_m26qg16k",
+    "email": "upendara628@gmail.com",
+    "name": "upendar bandi",
+    "role": "participant",
+    "rollNumber": "",
+    "institution": "",
+    "phone": "",
+    "token": "tok_0rjkwudii3"
+  },
+  {
+    "id": "usr_wp8r1jao",
+    "email": "alex.rivera@student.edu",
+    "name": "Alex Rivera",
+    "role": "participant",
+    "rollNumber": "CS-2026-042",
+    "institution": "Institute of Engineering",
+    "phone": "+91 98765 43210",
+    "token": "tok_yjgukdwpnx"
+  }
+]

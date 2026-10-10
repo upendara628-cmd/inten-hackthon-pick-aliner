@@ -58,7 +58,14 @@
   --color-sidebar-accent: var(--sidebar-accent);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+  --color-studlyf-purple: #6c2bff;
+  --color-studlyf-violet: #7c3aed;
+  --color-studlyf-indigo: #4f46e5;
+  --color-studlyf-orange: #ea580c;
+  --color-studlyf-amber: #f97316;
+  --color-studlyf-bg: #faf9ff;
+  --color-studlyf-card: #ffffff;
+  --color-studlyf-dark: #0b0b14;
 }
 
 :root {
@@ -138,7 +145,72 @@
   }
 
   body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
+    background-color: #faf9ff;
+    color: #1e1b4b;
+    font-family:
+      "Poppins",
+      system-ui,
+      -apple-system,
+      sans-serif;
+  }
+}
+
+@layer utilities {
+  .bg-studlyf-ambient {
+    background-color: #faf9ff;
+    background-image:
+      radial-gradient(at 0% 0%, rgba(108, 43, 255, 0.08) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(234, 88, 12, 0.06) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, rgba(124, 58, 237, 0.06) 0px, transparent 50%);
+  }
+
+  .glow-purple {
+    box-shadow: 0 10px 30px -10px rgba(108, 43, 255, 0.35);
+  }
+
+  .glow-purple-sm {
+    box-shadow: 0 4px 14px -3px rgba(108, 43, 255, 0.25);
+  }
+
+  .glow-orange {
+    box-shadow: 0 10px 30px -10px rgba(234, 88, 12, 0.35);
+  }
+
+  .card-studlyf {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(226, 219, 255, 0.8);
+    border-radius: 1.25rem;
+    box-shadow: 0 8px 30px -8px rgba(108, 43, 255, 0.08);
+  }
+
+  .btn-studlyf-primary {
+    background: linear-gradient(135deg, #6c2bff 0%, #7c3aed 50%, #6366f1 100%);
+    color: #ffffff;
+    font-weight: 600;
+    border-radius: 9999px;
+    box-shadow: 0 4px 20px -2px rgba(108, 43, 255, 0.38);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .btn-studlyf-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px -4px rgba(108, 43, 255, 0.5);
+    filter: brightness(1.05);
+  }
+
+  .btn-studlyf-secondary {
+    background: #ffffff;
+    color: #1e1b4b;
+    border: 1px solid #e2d9ff;
+    font-weight: 600;
+    border-radius: 9999px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .btn-studlyf-secondary:hover {
+    background: #f5f1ff;
+    border-color: #c4b5fd;
+    color: #6c2bff;
+    transform: translateY(-1px);
   }
 }

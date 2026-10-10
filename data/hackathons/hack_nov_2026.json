@@ -1,0 +1,24 @@
+{
+  "id": "hack_nov_2026",
+  "name": "Nov 2026 AI Innovation Challenge",
+  "shortDescription": "National student artificial intelligence hackathon.",
+  "fullDescription": "Comprehensive student contest.",
+  "organizerName": "Event Organizer Sir",
+  "venue": "Main Campus",
+  "startDate": "2026-10-08T17:08:19.637Z",
+  "endDate": "2026-10-09T17:08:19.639Z",
+  "participationType": "both",
+  "timerMode": "global",
+  "globalStartTime": "2026-10-08T17:08:19.639Z",
+  "globalEndTime": "2026-10-09T17:08:19.639Z",
+  "individualDurationMinutes": 360,
+  "submissionPolicy": "allow_late",
+  "accessType": "public",
+  "status": "PUBLISHED",
+  "problemStatement": {
+    "title": "Nov 2026 AI Innovation Challenge Problem Statement",
+    "content": "Solve real-world healthcare challenges using computer vision."
+  },
+  "updatedAt": "2026-10-08T17:08:19.650Z",
+  "createdAt": "2026-10-08T17:08:19.650Z"
+}

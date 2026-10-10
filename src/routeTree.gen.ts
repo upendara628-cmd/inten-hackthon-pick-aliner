@@ -10,13 +10,34 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GalleryRouteImport } from './routes/gallery'
+import { Route as ThemesRouteImport } from './routes/themes'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminThemesRouteImport } from './routes/admin.themes'
 import { Route as DThemeIdRouteImport } from './routes/d.$themeId'
+import { Route as HackathonsIndexRouteImport } from './routes/hackathons.index'
+import { Route as AdminHackathonsIndexRouteImport } from './routes/admin.hackathons.index'
+import { Route as AdminHackathonsCreateRouteImport } from './routes/admin.hackathons.create'
+import { Route as HackathonsHackathonIdIndexRouteImport } from './routes/hackathons.$hackathonId.index'
+import { Route as HackathonsHackathonIdProblemRouteImport } from './routes/hackathons.$hackathonId.problem'
+import { Route as HackathonsHackathonIdSubmissionRouteImport } from './routes/hackathons.$hackathonId.submission'
+import { Route as AdminHackathonsHackathonIdIndexRouteImport } from './routes/admin.hackathons.$hackathonId.index'
+import { Route as AdminHackathonsHackathonIdParticipantsRouteImport } from './routes/admin.hackathons.$hackathonId.participants'
+import { Route as AdminHackathonsHackathonIdSubmissionsRouteImport } from './routes/admin.hackathons.$hackathonId.submissions'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GalleryRoute = GalleryRouteImport.update({
+  id: '/gallery',
+  path: '/gallery',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ThemesRoute = ThemesRouteImport.update({
+  id: '/themes',
+  path: '/themes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -34,39 +55,180 @@ const DThemeIdRoute = DThemeIdRouteImport.update({
   path: '/d/$themeId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HackathonsIndexRoute = HackathonsIndexRouteImport.update({
+  id: '/hackathons/',
+  path: '/hackathons/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminHackathonsIndexRoute = AdminHackathonsIndexRouteImport.update({
+  id: '/admin/hackathons/',
+  path: '/admin/hackathons/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminHackathonsCreateRoute = AdminHackathonsCreateRouteImport.update({
+  id: '/admin/hackathons/create',
+  path: '/admin/hackathons/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HackathonsHackathonIdIndexRoute =
+  HackathonsHackathonIdIndexRouteImport.update({
+    id: '/hackathons/$hackathonId/',
+    path: '/hackathons/$hackathonId/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const HackathonsHackathonIdProblemRoute =
+  HackathonsHackathonIdProblemRouteImport.update({
+    id: '/hackathons/$hackathonId/problem',
+    path: '/hackathons/$hackathonId/problem',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const HackathonsHackathonIdSubmissionRoute =
+  HackathonsHackathonIdSubmissionRouteImport.update({
+    id: '/hackathons/$hackathonId/submission',
+    path: '/hackathons/$hackathonId/submission',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AdminHackathonsHackathonIdIndexRoute =
+  AdminHackathonsHackathonIdIndexRouteImport.update({
+    id: '/admin/hackathons/$hackathonId/',
+    path: '/admin/hackathons/$hackathonId/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AdminHackathonsHackathonIdParticipantsRoute =
+  AdminHackathonsHackathonIdParticipantsRouteImport.update({
+    id: '/admin/hackathons/$hackathonId/participants',
+    path: '/admin/hackathons/$hackathonId/participants',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AdminHackathonsHackathonIdSubmissionsRoute =
+  AdminHackathonsHackathonIdSubmissionsRouteImport.update({
+    id: '/admin/hackathons/$hackathonId/submissions',
+    path: '/admin/hackathons/$hackathonId/submissions',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/gallery': typeof GalleryRoute
+  '/themes': typeof ThemesRoute
   '/admin/themes': typeof AdminThemesRoute
   '/d/$themeId': typeof DThemeIdRoute
   '/admin/': typeof AdminIndexRoute
+  '/hackathons/': typeof HackathonsIndexRoute
+  '/admin/hackathons/create': typeof AdminHackathonsCreateRoute
+  '/hackathons/$hackathonId/problem': typeof HackathonsHackathonIdProblemRoute
+  '/hackathons/$hackathonId/submission': typeof HackathonsHackathonIdSubmissionRoute
+  '/admin/hackathons/': typeof AdminHackathonsIndexRoute
+  '/hackathons/$hackathonId/': typeof HackathonsHackathonIdIndexRoute
+  '/admin/hackathons/$hackathonId/participants': typeof AdminHackathonsHackathonIdParticipantsRoute
+  '/admin/hackathons/$hackathonId/submissions': typeof AdminHackathonsHackathonIdSubmissionsRoute
+  '/admin/hackathons/$hackathonId/': typeof AdminHackathonsHackathonIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/gallery': typeof GalleryRoute
+  '/themes': typeof ThemesRoute
   '/admin/themes': typeof AdminThemesRoute
   '/d/$themeId': typeof DThemeIdRoute
   '/admin': typeof AdminIndexRoute
+  '/hackathons': typeof HackathonsIndexRoute
+  '/admin/hackathons/create': typeof AdminHackathonsCreateRoute
+  '/hackathons/$hackathonId/problem': typeof HackathonsHackathonIdProblemRoute
+  '/hackathons/$hackathonId/submission': typeof HackathonsHackathonIdSubmissionRoute
+  '/admin/hackathons': typeof AdminHackathonsIndexRoute
+  '/hackathons/$hackathonId': typeof HackathonsHackathonIdIndexRoute
+  '/admin/hackathons/$hackathonId/participants': typeof AdminHackathonsHackathonIdParticipantsRoute
+  '/admin/hackathons/$hackathonId/submissions': typeof AdminHackathonsHackathonIdSubmissionsRoute
+  '/admin/hackathons/$hackathonId': typeof AdminHackathonsHackathonIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/gallery': typeof GalleryRoute
+  '/themes': typeof ThemesRoute
   '/admin/themes': typeof AdminThemesRoute
   '/d/$themeId': typeof DThemeIdRoute
   '/admin/': typeof AdminIndexRoute
+  '/hackathons/': typeof HackathonsIndexRoute
+  '/admin/hackathons/create': typeof AdminHackathonsCreateRoute
+  '/hackathons/$hackathonId/problem': typeof HackathonsHackathonIdProblemRoute
+  '/hackathons/$hackathonId/submission': typeof HackathonsHackathonIdSubmissionRoute
+  '/admin/hackathons/': typeof AdminHackathonsIndexRoute
+  '/hackathons/$hackathonId/': typeof HackathonsHackathonIdIndexRoute
+  '/admin/hackathons/$hackathonId/participants': typeof AdminHackathonsHackathonIdParticipantsRoute
+  '/admin/hackathons/$hackathonId/submissions': typeof AdminHackathonsHackathonIdSubmissionsRoute
+  '/admin/hackathons/$hackathonId/': typeof AdminHackathonsHackathonIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin/themes' | '/d/$themeId' | '/admin/'
+  fullPaths:
+    | '/'
+    | '/gallery'
+    | '/themes'
+    | '/admin/themes'
+    | '/d/$themeId'
+    | '/admin/'
+    | '/hackathons/'
+    | '/admin/hackathons/create'
+    | '/hackathons/$hackathonId/problem'
+    | '/hackathons/$hackathonId/submission'
+    | '/admin/hackathons/'
+    | '/hackathons/$hackathonId/'
+    | '/admin/hackathons/$hackathonId/participants'
+    | '/admin/hackathons/$hackathonId/submissions'
+    | '/admin/hackathons/$hackathonId/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin/themes' | '/d/$themeId' | '/admin'
-  id: '__root__' | '/' | '/admin/themes' | '/d/$themeId' | '/admin/'
+  to:
+    | '/'
+    | '/gallery'
+    | '/themes'
+    | '/admin/themes'
+    | '/d/$themeId'
+    | '/admin'
+    | '/hackathons'
+    | '/admin/hackathons/create'
+    | '/hackathons/$hackathonId/problem'
+    | '/hackathons/$hackathonId/submission'
+    | '/admin/hackathons'
+    | '/hackathons/$hackathonId'
+    | '/admin/hackathons/$hackathonId/participants'
+    | '/admin/hackathons/$hackathonId/submissions'
+    | '/admin/hackathons/$hackathonId'
+  id:
+    | '__root__'
+    | '/'
+    | '/gallery'
+    | '/themes'
+    | '/admin/themes'
+    | '/d/$themeId'
+    | '/admin/'
+    | '/hackathons/'
+    | '/admin/hackathons/create'
+    | '/hackathons/$hackathonId/problem'
+    | '/hackathons/$hackathonId/submission'
+    | '/admin/hackathons/'
+    | '/hackathons/$hackathonId/'
+    | '/admin/hackathons/$hackathonId/participants'
+    | '/admin/hackathons/$hackathonId/submissions'
+    | '/admin/hackathons/$hackathonId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  GalleryRoute: typeof GalleryRoute
+  ThemesRoute: typeof ThemesRoute
   AdminThemesRoute: typeof AdminThemesRoute
   DThemeIdRoute: typeof DThemeIdRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  HackathonsIndexRoute: typeof HackathonsIndexRoute
+  AdminHackathonsCreateRoute: typeof AdminHackathonsCreateRoute
+  HackathonsHackathonIdProblemRoute: typeof HackathonsHackathonIdProblemRoute
+  HackathonsHackathonIdSubmissionRoute: typeof HackathonsHackathonIdSubmissionRoute
+  AdminHackathonsIndexRoute: typeof AdminHackathonsIndexRoute
+  HackathonsHackathonIdIndexRoute: typeof HackathonsHackathonIdIndexRoute
+  AdminHackathonsHackathonIdParticipantsRoute: typeof AdminHackathonsHackathonIdParticipantsRoute
+  AdminHackathonsHackathonIdSubmissionsRoute: typeof AdminHackathonsHackathonIdSubmissionsRoute
+  AdminHackathonsHackathonIdIndexRoute: typeof AdminHackathonsHackathonIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -76,6 +238,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gallery': {
+      id: '/gallery'
+      path: '/gallery'
+      fullPath: '/gallery'
+      preLoaderRoute: typeof GalleryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/themes': {
+      id: '/themes'
+      path: '/themes'
+      fullPath: '/themes'
+      preLoaderRoute: typeof ThemesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -99,14 +275,90 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DThemeIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hackathons/': {
+      id: '/hackathons/'
+      path: '/hackathons'
+      fullPath: '/hackathons/'
+      preLoaderRoute: typeof HackathonsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/hackathons/': {
+      id: '/admin/hackathons/'
+      path: '/admin/hackathons'
+      fullPath: '/admin/hackathons/'
+      preLoaderRoute: typeof AdminHackathonsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/hackathons/create': {
+      id: '/admin/hackathons/create'
+      path: '/admin/hackathons/create'
+      fullPath: '/admin/hackathons/create'
+      preLoaderRoute: typeof AdminHackathonsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hackathons/$hackathonId/': {
+      id: '/hackathons/$hackathonId/'
+      path: '/hackathons/$hackathonId'
+      fullPath: '/hackathons/$hackathonId/'
+      preLoaderRoute: typeof HackathonsHackathonIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hackathons/$hackathonId/problem': {
+      id: '/hackathons/$hackathonId/problem'
+      path: '/hackathons/$hackathonId/problem'
+      fullPath: '/hackathons/$hackathonId/problem'
+      preLoaderRoute: typeof HackathonsHackathonIdProblemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hackathons/$hackathonId/submission': {
+      id: '/hackathons/$hackathonId/submission'
+      path: '/hackathons/$hackathonId/submission'
+      fullPath: '/hackathons/$hackathonId/submission'
+      preLoaderRoute: typeof HackathonsHackathonIdSubmissionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/hackathons/$hackathonId/': {
+      id: '/admin/hackathons/$hackathonId/'
+      path: '/admin/hackathons/$hackathonId'
+      fullPath: '/admin/hackathons/$hackathonId/'
+      preLoaderRoute: typeof AdminHackathonsHackathonIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/hackathons/$hackathonId/participants': {
+      id: '/admin/hackathons/$hackathonId/participants'
+      path: '/admin/hackathons/$hackathonId/participants'
+      fullPath: '/admin/hackathons/$hackathonId/participants'
+      preLoaderRoute: typeof AdminHackathonsHackathonIdParticipantsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/hackathons/$hackathonId/submissions': {
+      id: '/admin/hackathons/$hackathonId/submissions'
+      path: '/admin/hackathons/$hackathonId/submissions'
+      fullPath: '/admin/hackathons/$hackathonId/submissions'
+      preLoaderRoute: typeof AdminHackathonsHackathonIdSubmissionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  GalleryRoute: GalleryRoute,
+  ThemesRoute: ThemesRoute,
   AdminThemesRoute: AdminThemesRoute,
   DThemeIdRoute: DThemeIdRoute,
   AdminIndexRoute: AdminIndexRoute,
+  HackathonsIndexRoute: HackathonsIndexRoute,
+  AdminHackathonsCreateRoute: AdminHackathonsCreateRoute,
+  HackathonsHackathonIdProblemRoute: HackathonsHackathonIdProblemRoute,
+  HackathonsHackathonIdSubmissionRoute: HackathonsHackathonIdSubmissionRoute,
+  AdminHackathonsIndexRoute: AdminHackathonsIndexRoute,
+  HackathonsHackathonIdIndexRoute: HackathonsHackathonIdIndexRoute,
+  AdminHackathonsHackathonIdParticipantsRoute:
+    AdminHackathonsHackathonIdParticipantsRoute,
+  AdminHackathonsHackathonIdSubmissionsRoute:
+    AdminHackathonsHackathonIdSubmissionsRoute,
+  AdminHackathonsHackathonIdIndexRoute: AdminHackathonsHackathonIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

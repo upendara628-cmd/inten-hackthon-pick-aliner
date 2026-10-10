@@ -13,6 +13,8 @@ export function LayoutEditor({
   shape,
   textFields,
   selected,
+  templateWidth,
+  templateHeight,
   onPhotoBoxChange,
   onTextFieldChange,
   onSelectionChange,
@@ -22,6 +24,8 @@ export function LayoutEditor({
   shape: ShapeType;
   textFields: TextField[];
   selected: Selection;
+  templateWidth?: number;
+  templateHeight?: number;
   onPhotoBoxChange: (box: Box) => void;
   onTextFieldChange: (id: string, position: TextPosition) => void;
   onSelectionChange: (selection: Selection) => void;
@@ -98,16 +102,18 @@ export function LayoutEditor({
   };
 
   const handles = (selection: Selection, box: Box) =>
-    ([
-      ["nw", "-left-1.5 -top-1.5 cursor-nwse-resize"],
-      ["ne", "-right-1.5 -top-1.5 cursor-nesw-resize"],
-      ["sw", "-bottom-1.5 -left-1.5 cursor-nesw-resize"],
-      ["se", "-bottom-1.5 -right-1.5 cursor-nwse-resize"],
-    ] as const).map(([mode, className]) => (
+    (
+      [
+        ["nw", "-left-2 -top-2 cursor-nwse-resize"],
+        ["ne", "-right-2 -top-2 cursor-nesw-resize"],
+        ["sw", "-bottom-2 -left-2 cursor-nesw-resize"],
+        ["se", "-bottom-2 -right-2 cursor-nwse-resize"],
+      ] as const
+    ).map(([mode, className]) => (
       <span
         key={mode}
         onPointerDown={(event) => begin(event, selection, mode, box)}
-        className={`absolute h-3 w-3 border border-foreground bg-background ${className}`}
+        className={`absolute h-4 w-4 rounded-full border-2 border-white bg-[#6C2BFF] shadow-sm shadow-purple-950/40 ${className}`}
       />
     ));
 
@@ -121,12 +127,19 @@ export function LayoutEditor({
         onPointerMove={move}
         onPointerUp={finish}
         onPointerCancel={finish}
-        className={`absolute cursor-move border-2 ${
-          active ? "border-blue-600 bg-blue-500/20" : "border-slate-500 bg-white/20"
-        } ${isPhoto && shape === "circle" ? "rounded-full" : ""}`}
-        style={{ left: `${box.x}%`, top: `${box.y}%`, width: `${box.width}%`, height: `${box.height}%` }}
+        className={`absolute cursor-move border-2 transition-colors ${
+          active
+            ? "border-[#6C2BFF] bg-[#6C2BFF]/20 shadow-md shadow-purple-500/30"
+            : "border-purple-300/80 bg-purple-500/10 hover:border-purple-400"
+        } ${isPhoto && shape === "circle" ? "rounded-full" : "rounded-lg"}`}
+        style={{
+          left: `${box.x}%`,
+          top: `${box.y}%`,
+          width: `${box.width}%`,
+          height: `${box.height}%`,
+        }}
       >
-        <span className="absolute left-0 top-0 bg-slate-900 px-1.5 py-0.5 text-[10px] font-medium text-white">
+        <span className="absolute left-0 top-0 rounded-br-md bg-gradient-to-r from-[#6C2BFF] to-[#7C3AED] px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
           {label}
         </span>
         {active && handles(selection, box)}
@@ -137,9 +150,17 @@ export function LayoutEditor({
   return (
     <div
       ref={frameRef}
-      className="relative select-none overflow-hidden border border-slate-300 bg-slate-100"
+      className="relative select-none overflow-hidden rounded-2xl border border-purple-200 bg-slate-100/80 shadow-inner"
       style={{ touchAction: "none" }}
     >
+      {templateWidth && templateHeight ? (
+        <div className="pointer-events-none absolute right-3 top-3 z-20 flex items-center gap-1.5 rounded-full bg-slate-900/80 px-2.5 py-1 text-[11px] font-mono font-bold text-white shadow-md backdrop-blur-xs">
+          <span className="h-2 w-2 rounded-full bg-[#6C2BFF]" />
+          <span>
+            {templateWidth} × {templateHeight} px
+          </span>
+        </div>
+      ) : null}
       <img src={src} alt="Theme template" className="block w-full select-none" draggable={false} />
       {overlay("photo", photoBox, "Photo")}
       {textFields.map((field) => overlay(field.id, field, field.label))}

@@ -1,0 +1,29 @@
+[
+  {
+    "id": "log_503bgor3",
+    "hackathonId": "hack_oct_2026",
+    "actorName": "Alex Rivera",
+    "actorRole": "participant",
+    "action": "SUBMISSION_RECORDED",
+    "details": "Submission recorded for \"Framewise Badging Engine\" by Alex Rivera. Status: SUBMITTED (0s late). GitHub: https://github.com/alexrivera/framewise-badging",
+    "timestamp": "2026-10-08T16:57:20.554Z"
+  },
+  {
+    "id": "log_x51ov8d7",
+    "hackathonId": "hack_oct_2026",
+    "actorName": "Alex Rivera",
+    "actorRole": "participant",
+    "action": "PARTICIPANT_STARTED",
+    "details": "Participant \"Alex Rivera\" officially started at 2026-10-08T16:57:20.408Z. Deadline: 2026-10-08T22:57:20.408Z",
+    "timestamp": "2026-10-08T16:57:20.420Z"
+  },
+  {
+    "id": "log_qje3m1mj",
+    "hackathonId": "hack_oct_2026",
+    "actorName": "Event Organizer Sir",
+    "actorRole": "organizer",
+    "action": "HACKATHON_CREATED",
+    "details": "Hackathon \"Oct 2026 Innovation Sprint\" saved with status PUBLISHED.",
+    "timestamp": "2026-10-08T16:57:20.318Z"
+  }
+]

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "log_8lgsckq3",
+    "hackathonId": "hack_muzs88f6",
+    "actorName": "Event Organizer Sir",
+    "actorRole": "organizer",
+    "action": "HACKATHON_CREATED",
+    "details": "Hackathon \"nani\" saved with status PUBLISHED.",
+    "timestamp": "2026-10-08T17:01:24.813Z"
+  }
+]

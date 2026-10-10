@@ -1,4 +1,4 @@
-import { getTextFields, type Theme, type UserTextValues } from "./store";
+import { getTextFields, type PhotoAdjustment, type Theme, type UserTextValues } from "./store";
 
 export function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -18,9 +18,17 @@ export function coverRect(sw: number, sh: number, dw: number, dh: number) {
   return { x: (dw - w) / 2, y: (dh - h) / 2, w, h, scale };
 }
 
+/** Returns destination rect for drawing source of sw x sh inside dw x dh preserving 100% full content without cropping any edges. */
+export function containRect(sw: number, sh: number, dw: number, dh: number) {
+  const scale = Math.min(dw / sw, dh / sh);
+  const w = sw * scale;
+  const h = sh * scale;
+  return { x: (dw - w) / 2, y: (dh - h) / 2, w, h, scale };
+}
+
 /**
- * Draws the theme background (cover-cropped into the canvas) and clips the
- * user's photo into the admin-defined bounding box.
+ * Draws the theme background dynamically preserving all edges (zero cropping),
+ * and clips the user's photo into the admin-defined bounding box, with zoom & pan adjustments.
  */
 export function renderComposite(
   canvas: HTMLCanvasElement,
@@ -30,6 +38,7 @@ export function renderComposite(
   bg: HTMLImageElement,
   photo?: HTMLImageElement | null,
   textValues?: UserTextValues,
+  photoAdjust?: PhotoAdjustment,
 ) {
   canvas.width = width;
   canvas.height = height;
@@ -40,16 +49,28 @@ export function renderComposite(
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, width, height);
 
-  const base = coverRect(bg.naturalWidth, bg.naturalHeight, width, height);
+  // Dynamically fit template background preserving 100% of all edges (never remove edges!)
+  const base = containRect(bg.naturalWidth, bg.naturalHeight, width, height);
+
+  // If destination canvas aspect ratio differs from template, draw a subtle ambient backdrop
+  if (base.w < width || base.h < height) {
+    ctx.save();
+    ctx.filter = "blur(32px) brightness(0.96)";
+    ctx.drawImage(bg, -20, -20, width + 40, height + 40);
+    ctx.restore();
+    ctx.fillStyle = "rgba(255, 255, 255, 0.45)";
+    ctx.fillRect(0, 0, width, height);
+  }
+
+  // Draw 100% of the template graphic with ZERO edges removed
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(bg, base.x, base.y, base.w, base.h);
 
   // Bounding box in canvas pixels (percentages are relative to the template image).
   const bx = base.x + (theme.box_x / 100) * base.w;
   const by = base.y + (theme.box_y / 100) * base.h;
   const bw = (theme.box_width / 100) * base.w;
   const bh = (theme.box_height / 100) * base.h;
-
-  ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(bg, base.x, base.y, base.w, base.h);
 
   if (photo) {
     ctx.save();
@@ -60,8 +81,22 @@ export function renderComposite(
       ctx.rect(bx, by, bw, bh);
     }
     ctx.clip();
+
     const p = coverRect(photo.naturalWidth, photo.naturalHeight, bw, bh);
-    ctx.drawImage(photo, bx + p.x, by + p.y, p.w, p.h);
+    const scale = photoAdjust?.scale ?? 1;
+    const finalW = p.w * scale;
+    const finalH = p.h * scale;
+
+    const offsetX = ((photoAdjust?.offsetX ?? 0) / 100) * bw;
+    const offsetY = ((photoAdjust?.offsetY ?? 0) / 100) * bh;
+
+    const centerX = bx + bw / 2 + offsetX;
+    const centerY = by + bh / 2 + offsetY;
+
+    const drawX = centerX - finalW / 2;
+    const drawY = centerY - finalH / 2;
+
+    ctx.drawImage(photo, drawX, drawY, finalW, finalH);
     ctx.restore();
   }
 

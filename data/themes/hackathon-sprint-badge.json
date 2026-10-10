@@ -1,0 +1,49 @@
+{
+  "id": "hackathon-sprint-badge",
+  "title": "Hackathon Live Sprint Credential",
+  "background_image_url": "/stud.png",
+  "box_x": 32,
+  "box_y": 22,
+  "box_width": 36,
+  "box_height": 30,
+  "shape_type": "rectangle",
+  "created_at": "2026-10-09T14:30:00.000Z",
+  "text_fields": [
+    {
+      "id": "fullName",
+      "label": "Hacker Name",
+      "x": 10,
+      "y": 56,
+      "width": 80,
+      "height": 9,
+      "font_size": 4.6,
+      "color": "#0f172a",
+      "align": "center",
+      "font_weight": "bold"
+    },
+    {
+      "id": "jobTitle",
+      "label": "Track & Squad",
+      "x": 15,
+      "y": 67,
+      "width": 70,
+      "height": 7,
+      "font_size": 3.3,
+      "color": "#7c3aed",
+      "align": "center",
+      "font_weight": "bold"
+    },
+    {
+      "id": "idCode",
+      "label": "Participant UID",
+      "x": 20,
+      "y": 76,
+      "width": 60,
+      "height": 6,
+      "font_size": 2.8,
+      "color": "#0284c7",
+      "align": "center",
+      "font_weight": "normal"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
-# ThemeSnap Studio
+# inten-hackthon-pick-aliner
 
-Build a complete, production-grade Web Application using React, Tailwind CSS, TypeScript, and Supabase for a dynamic theme management and photo-alignment system.
+Framewise: Production-grade photo alignment engine and synchronized live hackathon competition platform.
 
 The application has two roles: Admin and User.
 

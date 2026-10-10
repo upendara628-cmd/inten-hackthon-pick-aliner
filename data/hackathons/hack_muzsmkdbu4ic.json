@@ -1,0 +1,15 @@
+{
+  "name": "Hackathon Test Automation",
+  "description": "Testing save hackathon feature",
+  "timerMode": "global",
+  "startDate": "2026-10-08T17:11:18.318Z",
+  "globalEndTime": "2026-10-09T17:11:18.320Z",
+  "problemStatement": {
+    "title": "Hackathon Test Automation Problem",
+    "description": "Solve the automated problem"
+  },
+  "status": "ENDED",
+  "id": "hack_muzsmkdbu4ic",
+  "updatedAt": "2026-10-08T17:27:33.653Z",
+  "createdAt": "2026-10-08T17:11:18.433Z"
+}

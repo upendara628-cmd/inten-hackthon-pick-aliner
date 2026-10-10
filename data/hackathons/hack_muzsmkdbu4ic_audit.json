@@ -1,0 +1,119 @@
+[
+  {
+    "id": "log_x9prunc4",
+    "hackathonId": "hack_muzsmkdbu4ic",
+    "actorName": "Event Organizer Sir",
+    "actorRole": "organizer",
+    "action": "STATUS_CHANGED",
+    "details": "Status changed from LIVE to ENDED.",
+    "timestamp": "2026-10-08T17:27:33.661Z"
+  },
+  {
+    "id": "log_c2b7peft",
+    "hackathonId": "hack_muzsmkdbu4ic",
+    "actorName": "Event Organizer Sir",
+    "actorRole": "organizer",
+    "action": "HACKATHON_UPDATED",
+    "details": "Hackathon \"Hackathon Test Automation\" saved with status ENDED.",
+    "timestamp": "2026-10-08T17:27:33.657Z"
+  },
+  {
+    "id": "log_6cvgva4b",
+    "hackathonId": "hack_muzsmkdbu4ic",
+    "actorName": "Event Organizer Sir",
+    "actorRole": "organizer",
+    "action": "STATUS_CHANGED",
+    "details": "Status changed from PUBLISHED to LIVE.",
+    "timestamp": "2026-10-08T17:27:14.044Z"
+  },
+  {
+    "id": "log_7bei6ejz",
+    "hackathonId": "hack_muzsmkdbu4ic",
+    "actorName": "Event Organizer Sir",
+    "actorRole": "organizer",
+    "action": "HACKATHON_UPDATED",
+    "details": "Hackathon \"Hackathon Test Automation\" saved with status LIVE.",
+    "timestamp": "2026-10-08T17:27:14.040Z"
+  },
+  {
+    "id": "log_jsxyankg",
+    "hackathonId": "hack_muzsmkdbu4ic",
+    "actorName": "Event Organizer Sir",
+    "actorRole": "organizer",
+    "action": "STATUS_CHANGED",
+    "details": "Status changed from ARCHIVED to PUBLISHED.",
+    "timestamp": "2026-10-08T17:27:10.698Z"
+  },
+  {
+    "id": "log_hm9mjwah",
+    "hackathonId": "hack_muzsmkdbu4ic",
+    "actorName": "Event Organizer Sir",
+    "actorRole": "organizer",
+    "action": "HACKATHON_UPDATED",
+    "details": "Hackathon \"Hackathon Test Automation\" saved with status PUBLISHED.",
+    "timestamp": "2026-10-08T17:27:10.695Z"
+  },
+  {
+    "id": "log_571ubee8",
+    "hackathonId": "hack_muzsmkdbu4ic",
+    "actorName": "Event Organizer Sir",
+    "actorRole": "organizer",
+    "action": "HACKATHON_ARCHIVED",
+    "details": "Hackathon \"Hackathon Test Automation\" archived.",
+    "timestamp": "2026-10-08T17:27:05.160Z"
+  },
+  {
+    "id": "log_h0bxu1t9",
+    "hackathonId": "hack_muzsmkdbu4ic",
+    "actorName": "Event Organizer Sir",
+    "actorRole": "organizer",
+    "action": "HACKATHON_UPDATED",
+    "details": "Hackathon \"Hackathon Test Automation\" saved with status ARCHIVED.",
+    "timestamp": "2026-10-08T17:27:05.156Z"
+  },
+  {
+    "id": "log_4tes8vic",
+    "hackathonId": "hack_muzsmkdbu4ic",
+    "actorName": "Event Organizer Sir",
+    "actorRole": "organizer",
+    "action": "STATUS_CHANGED",
+    "details": "Status changed from PUBLISHED to LIVE.",
+    "timestamp": "2026-10-08T17:26:07.441Z"
+  },
+  {
+    "id": "log_iz36q8l9",
+    "hackathonId": "hack_muzsmkdbu4ic",
+    "actorName": "Event Organizer Sir",
+    "actorRole": "organizer",
+    "action": "HACKATHON_UPDATED",
+    "details": "Hackathon \"Hackathon Test Automation\" saved with status LIVE.",
+    "timestamp": "2026-10-08T17:26:07.437Z"
+  },
+  {
+    "id": "log_g4fsgnfx",
+    "hackathonId": "hack_muzsmkdbu4ic",
+    "actorName": "Alex Rivera",
+    "actorRole": "participant",
+    "action": "SUBMISSION_RECORDED",
+    "details": "Submission recorded for \"afdsa\" by Alex Rivera. Status: SUBMITTED (0s late). GitHub: https://github.com/upendara628-cmd/aisle-art-app",
+    "timestamp": "2026-10-08T17:25:04.206Z"
+  },
+  {
+    "id": "log_oly6daez",
+    "hackathonId": "hack_muzsmkdbu4ic",
+    "actorName": "Alex Rivera",
+    "actorRole": "participant",
+    "action": "PARTICIPANT_STARTED",
+    "details": "Participant \"Alex Rivera\" officially started at 2026-10-08T17:24:25.844Z. Deadline: 2026-10-09T17:11:18.320Z",
+    "timestamp": "2026-10-08T17:24:25.849Z"
+  },
+  {
+    "id": "log_txy3ytxr",
+    "hackathonId": "hack_muzsmkdbu4ic",
+    "actorName": "Event Organizer Sir",
+    "actorRole": "organizer",
+    "action": "HACKATHON_CREATED",
+    "details": "Hackathon \"Hackathon Test Automation\" saved with status PUBLISHED.",
+    "timestamp": "2026-10-08T17:11:18.439Z"
+  }
+]
