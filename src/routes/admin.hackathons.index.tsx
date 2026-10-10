@@ -85,13 +85,21 @@ function AdminHackathonsIndex() {
 
   const handleStatusToggle = async (id: string, current: string) => {
     const nextStatus =
-      current === "LIVE" ? "ENDED" : current === "PUBLISHED" ? "LIVE" : "PUBLISHED";
+      current === "LIVE"
+        ? "ENDED"
+        : current === "PUBLISHED" || current === "UPCOMING" || current === "ENDED"
+          ? "LIVE"
+          : "PUBLISHED";
     try {
+      setHackathons((prev) =>
+        prev.map((h) => (h.id === id ? { ...h, status: nextStatus as any } : h)),
+      );
       await apiUpdateHackathonStatus(id, nextStatus as any);
       toast.success(`Event status updated to ${nextStatus}`);
       loadHackathons();
     } catch (err: any) {
       toast.error(err.message || "Failed to update status");
+      loadHackathons();
     }
   };
 
@@ -292,9 +300,11 @@ function AdminHackathonsIndex() {
                     >
                       {h.status === "LIVE"
                         ? "Mark as Ended"
-                        : h.status === "PUBLISHED"
+                        : h.status === "PUBLISHED" || h.status === "UPCOMING"
                           ? "Start Live Now"
-                          : "Publish Event"}
+                          : h.status === "ENDED"
+                            ? "Restart as Live"
+                            : "Publish Event"}
                     </button>
                   </div>
                 </div>

@@ -139,16 +139,27 @@ export async function apiUpdateHackathonStatus(
   id: string,
   status: HackathonStatus,
 ): Promise<Hackathon> {
-  const res = await fetch(`/api/hackathons/${id}/status`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeader(),
-    },
-    body: JSON.stringify({ status }),
-  });
-  const data = await handleResponse<{ success: boolean; hackathon: Hackathon }>(res);
-  return data.hackathon;
+  try {
+    const res = await fetch(`/api/hackathons/${id}/status`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify({ status }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.hackathon) return data.hackathon;
+    }
+  } catch (err) {
+    console.warn("Direct status endpoint error, attempting fallback save:", err);
+  }
+
+  // Resilient fallback: fetch current entity and persist with updated status
+  const current = await apiGetHackathon(id);
+  const updated = await apiSaveHackathon({ ...current, status });
+  return updated;
 }
 
 export async function apiArchiveHackathon(id: string): Promise<void> {

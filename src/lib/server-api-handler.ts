@@ -535,6 +535,73 @@ export async function handleWebFetchApi(request: Request): Promise<Response | nu
       });
     }
 
+    if (subPath === "/status" && request.method === "POST") {
+      const user = getAuthUserFromRequest(request);
+      const body = (await request.json()) as any;
+      const updated = updateHackathonStatus(hackathonId, body?.status || "LIVE", {
+        name: user?.name || "Organizer",
+        role: user?.role || "organizer",
+      });
+      if (!updated) {
+        return new Response(JSON.stringify({ error: "Hackathon not found" }), {
+          status: 404,
+          headers: { "content-type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify({ success: true, hackathon: updated }), {
+        headers: { "content-type": "application/json" },
+      });
+    }
+
+    // Serve uploaded problem file
+    const fileMatch = subPath.match(/^\/files\/([^/]+)$/);
+    if (fileMatch && request.method === "GET") {
+      const storedFilename = fileMatch[1];
+      const { filePath, exists } = getUploadedProblemFile(storedFilename);
+      if (!exists) {
+        return new Response(JSON.stringify({ error: "File not found" }), {
+          status: 404,
+          headers: { "content-type": "application/json" },
+        });
+      }
+      const data = fs.readFileSync(filePath);
+      return new Response(data, {
+        headers: {
+          "content-type": "application/octet-stream",
+          "content-disposition": `inline; filename="${storedFilename}"`,
+        },
+      });
+    }
+
+    // Upload problem original file
+    if (subPath === "/upload-problem-file" && request.method === "POST") {
+      const user = getAuthUserFromRequest(request);
+      try {
+        const body = (await request.json()) as any;
+        const fileMeta = saveUploadedProblemFile(
+          hackathonId,
+          body.filename,
+          body.fileType,
+          body.base64,
+        );
+        recordAuditLog(
+          hackathonId,
+          user?.name || "Organizer",
+          user?.role || "organizer",
+          "PROBLEM_FILE_UPLOADED",
+          `Original file "${body.filename}" (${fileMeta.size} bytes) uploaded.`,
+        );
+        return new Response(JSON.stringify({ success: true, fileMeta }), {
+          headers: { "content-type": "application/json" },
+        });
+      } catch (err: any) {
+        return new Response(JSON.stringify({ error: err.message }), {
+          status: 500,
+          headers: { "content-type": "application/json" },
+        });
+      }
+    }
+
     if (subPath === "/participations" && request.method === "GET") {
       const list = listParticipations(hackathonId);
       return new Response(JSON.stringify(list), {

@@ -112,11 +112,13 @@ function LiveHackathonDashboard() {
 
   const handleStatusChange = async (newStatus: any) => {
     try {
+      setHackathon((prev) => (prev ? { ...prev, status: newStatus } : null));
       await apiUpdateHackathonStatus(hackathonId, newStatus);
       toast.success(`Event status updated to ${newStatus}`);
       refreshData(true);
     } catch (err: any) {
       toast.error(err.message || "Failed to update status");
+      refreshData(true);
     }
   };
 
