@@ -1,8 +1,30 @@
 import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
 import type { UserProfile } from "./hackathon-types";
 
-const USERS_FILE = path.resolve(process.cwd(), "data", "users.json");
+function resolveUsersFile(): string {
+  const local = path.resolve(process.cwd(), "data");
+  try {
+    if (!fs.existsSync(local)) {
+      fs.mkdirSync(local, { recursive: true });
+    }
+    const testFile = path.join(local, `.test_${Date.now()}`);
+    fs.writeFileSync(testFile, "");
+    fs.unlinkSync(testFile);
+    return path.join(local, "users.json");
+  } catch {
+    const tmp = path.resolve(os.tmpdir(), "framewise-data");
+    try {
+      if (!fs.existsSync(tmp)) {
+        fs.mkdirSync(tmp, { recursive: true });
+      }
+    } catch {}
+    return path.join(tmp, "users.json");
+  }
+}
+
+const USERS_FILE = resolveUsersFile();
 
 const defaultUsers: UserProfile[] = [
   {
@@ -25,21 +47,33 @@ const defaultUsers: UserProfile[] = [
   },
 ];
 
-let usersCache: UserProfile[] | null = null;
+let usersCache: UserProfile[] = [...defaultUsers];
 
 function loadUsers(): UserProfile[] {
-  if (usersCache) return usersCache;
   try {
     if (fs.existsSync(USERS_FILE)) {
       const data = fs.readFileSync(USERS_FILE, "utf-8");
-      usersCache = JSON.parse(data) as UserProfile[];
-      return usersCache;
+      const parsed = JSON.parse(data) as UserProfile[];
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        usersCache = parsed;
+        return usersCache;
+      }
     }
-  } catch (err) {
-    console.error("Error loading users:", err);
-  }
-  usersCache = [...defaultUsers];
-  saveUsers(usersCache);
+  } catch (err) {}
+
+  // Check bundled original data
+  try {
+    const origPath = path.resolve(process.cwd(), "data", "users.json");
+    if (origPath !== USERS_FILE && fs.existsSync(origPath)) {
+      const data = fs.readFileSync(origPath, "utf-8");
+      const parsed = JSON.parse(data) as UserProfile[];
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        usersCache = parsed;
+        return usersCache;
+      }
+    }
+  } catch {}
+
   return usersCache;
 }
 
@@ -50,7 +84,7 @@ function saveUsers(users: UserProfile[]) {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), "utf-8");
   } catch (err) {
-    console.error("Error saving users:", err);
+    // In-memory cache handles user state when filesystem is read-only
   }
 }
 

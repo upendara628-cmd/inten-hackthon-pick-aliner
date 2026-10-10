@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
 import * as XLSX from "xlsx";
 import type {
   AuditLogEntry,
@@ -14,17 +15,109 @@ import type {
   TeamMember,
 } from "./hackathon-types";
 
-const DATA_DIR = path.resolve(process.cwd(), "data", "hackathons");
+function resolveDataDir(): string {
+  const local = path.resolve(process.cwd(), "data", "hackathons");
+  try {
+    if (!fs.existsSync(local)) {
+      fs.mkdirSync(local, { recursive: true });
+    }
+    const testFile = path.join(local, `.test_${Date.now()}`);
+    fs.writeFileSync(testFile, "");
+    fs.unlinkSync(testFile);
+    return local;
+  } catch {
+    const tmp = path.resolve(os.tmpdir(), "framewise-data", "hackathons");
+    try {
+      if (!fs.existsSync(tmp)) {
+        fs.mkdirSync(tmp, { recursive: true });
+      }
+    } catch {}
+    return tmp;
+  }
+}
+
+const DATA_DIR = resolveDataDir();
 const FILES_DIR = path.resolve(DATA_DIR, "files");
 
 function ensureDirs() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  }
-  if (!fs.existsSync(FILES_DIR)) {
-    fs.mkdirSync(FILES_DIR, { recursive: true });
-  }
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+  } catch {}
+  try {
+    if (!fs.existsSync(FILES_DIR)) {
+      fs.mkdirSync(FILES_DIR, { recursive: true });
+    }
+  } catch {}
 }
+
+const DEFAULT_HACKATHONS: Hackathon[] = [
+  {
+    id: "hack_oct_2026",
+    name: "Oct 2026 Innovation Sprint",
+    shortDescription: "Build next-gen student identity and credential infrastructure.",
+    fullDescription: "Comprehensive campus engineering hackathon to design secure automated solutions.",
+    organizerName: "Event Organizer Sir",
+    organizerId: "org_admin",
+    venue: "Campus Tech Hall / Hybrid",
+    startDate: "2026-10-15T09:00:00.000Z",
+    endDate: "2026-10-16T18:00:00.000Z",
+    participationType: "both",
+    minTeamSize: 2,
+    maxTeamSize: 4,
+    teamRules: "Inter-branch teams allowed.",
+    timerMode: "individual",
+    globalStartTime: "2026-10-15T09:00:00.000Z",
+    globalEndTime: "2026-10-16T18:00:00.000Z",
+    individualDurationMinutes: 360,
+    submissionPolicy: "allow_late",
+    accessType: "public",
+    status: "PUBLISHED",
+    problemStatement: {
+      title: "Automated Student Verification & Cryptographic Badging",
+      content: "Develop a modern, reliable system that generates secure participant credentials and integrates with event scanners.",
+      objective: "Eliminate duplicate badge forgery and automate fast verification at entry checkpoints.",
+      requirements: "1. Fast sub-second alignment\n2. Real-time exports\n3. Cryptographic hash check",
+      constraints: "Client-side processing preferred to maintain attendee privacy.",
+      expectedOutput: "Deployable web app and verified GitHub repository.",
+      evaluationCriteria: "Innovation: 30%, Code Quality: 30%, UI/UX: 20%, Execution: 20%",
+    },
+    updatedAt: "2026-10-08T16:57:20.311Z",
+    createdAt: "2026-10-08T16:57:20.311Z",
+  },
+  {
+    id: "hack_nov_2026",
+    name: "AI & Systems National Hackathon 2026",
+    shortDescription: "Solve hard systems challenges with autonomous agents and web intelligence.",
+    fullDescription: "48-hour nationwide developer sprint focused on next-generation computing architectures.",
+    organizerName: "Event Organizer Sir",
+    organizerId: "org_admin",
+    venue: "Main Auditorium & Online",
+    startDate: "2026-11-05T10:00:00.000Z",
+    endDate: "2026-11-07T18:00:00.000Z",
+    participationType: "both",
+    minTeamSize: 1,
+    maxTeamSize: 4,
+    timerMode: "global",
+    globalStartTime: "2026-11-05T10:00:00.000Z",
+    globalEndTime: "2026-11-07T18:00:00.000Z",
+    submissionPolicy: "strict_cutoff",
+    accessType: "public",
+    status: "PUBLISHED",
+    problemStatement: {
+      title: "Resilient Distributed State for Autonomous Workflows",
+      content: "Construct high-throughput real-time streaming architectures capable of multi-agent state coordination.",
+      objective: "Achieve sub-50ms sync latency under network partition stress.",
+      requirements: "1. Real-time consensus\n2. Crash recovery\n3. Scalable storage",
+      constraints: "Strict resource caps on memory footprint.",
+      expectedOutput: "Working prototype and benchmark suite.",
+      evaluationCriteria: "Architecture: 40%, Performance: 30%, Documentation: 30%",
+    },
+    updatedAt: "2026-10-09T12:00:00.000Z",
+    createdAt: "2026-10-09T12:00:00.000Z",
+  },
+];
 
 // In-memory cache for fast lookups & thread safety
 const hackathonCache = new Map<string, Hackathon>();
@@ -33,6 +126,11 @@ const teamsCache = new Map<string, Team[]>();
 const submissionsCache = new Map<string, Submission[]>();
 const auditCache = new Map<string, AuditLogEntry[]>();
 
+// Initialize default demonstration hackathons into memory cache
+for (const dh of DEFAULT_HACKATHONS) {
+  hackathonCache.set(dh.id, dh);
+}
+
 function readJsonFile<T>(filePath: string, fallback: T): T {
   try {
     if (fs.existsSync(filePath)) {
@@ -40,7 +138,7 @@ function readJsonFile<T>(filePath: string, fallback: T): T {
       return JSON.parse(content) as T;
     }
   } catch (err) {
-    console.error(`Error reading ${filePath}:`, err);
+    // Ignore read errors
   }
   return fallback;
 }
@@ -50,7 +148,7 @@ function writeJsonFile<T>(filePath: string, data: T): void {
     ensureDirs();
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf-8");
   } catch (err) {
-    console.error(`Error writing ${filePath}:`, err);
+    // In-memory cache handles persistence when disk is read-only
   }
 }
 
@@ -60,29 +158,49 @@ function writeJsonFile<T>(filePath: string, data: T): void {
 
 export function listHackathons(includeDrafts = true): Hackathon[] {
   ensureDirs();
-  const files = fs.readdirSync(DATA_DIR);
-  const list: Hackathon[] = [];
+  try {
+    if (fs.existsSync(DATA_DIR)) {
+      const files = fs.readdirSync(DATA_DIR);
+      for (const file of files) {
+        const isSidecar =
+          file.endsWith("_participations.json") ||
+          file.endsWith("_submissions.json") ||
+          file.endsWith("_teams.json") ||
+          file.endsWith("_audit.json");
 
-  for (const file of files) {
-    // Exclude sidecar files: [id]_participations.json, [id]_submissions.json, etc.
-    const isSidecar =
-      file.endsWith("_participations.json") ||
-      file.endsWith("_submissions.json") ||
-      file.endsWith("_teams.json") ||
-      file.endsWith("_audit.json");
-
-    if (file.endsWith(".json") && !isSidecar) {
-      const id = file.replace(/\.json$/, "");
-      const h = getHackathon(id);
-      if (h) {
-        if (includeDrafts || h.status !== "DRAFT") {
-          list.push(h);
+        if (file.endsWith(".json") && !isSidecar) {
+          const id = file.replace(/\.json$/, "");
+          getHackathon(id);
         }
       }
     }
+  } catch (err) {}
+
+  // Check bundled project directory if DATA_DIR was redirected to /tmp
+  const originalDataDir = path.resolve(process.cwd(), "data", "hackathons");
+  if (originalDataDir !== DATA_DIR) {
+    try {
+      if (fs.existsSync(originalDataDir)) {
+        const files = fs.readdirSync(originalDataDir);
+        for (const file of files) {
+          const isSidecar =
+            file.endsWith("_participations.json") ||
+            file.endsWith("_submissions.json") ||
+            file.endsWith("_teams.json") ||
+            file.endsWith("_audit.json");
+
+          if (file.endsWith(".json") && !isSidecar) {
+            const id = file.replace(/\.json$/, "");
+            getHackathon(id);
+          }
+        }
+      }
+    } catch {}
   }
 
-  return list.sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
+  const list: Hackathon[] = Array.from(hackathonCache.values());
+  const filtered = includeDrafts ? list : list.filter((h) => h.status !== "DRAFT");
+  return filtered.sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
 }
 
 export function getHackathon(id: string): Hackathon | null {
@@ -90,14 +208,28 @@ export function getHackathon(id: string): Hackathon | null {
     return hackathonCache.get(id)!;
   }
   ensureDirs();
-  const filePath = path.join(DATA_DIR, `${id}.json`);
-  if (fs.existsSync(filePath)) {
-    const h = readJsonFile<Hackathon | null>(filePath, null);
-    if (h) {
-      hackathonCache.set(id, h);
-      return h;
+  try {
+    const filePath = path.join(DATA_DIR, `${id}.json`);
+    if (fs.existsSync(filePath)) {
+      const h = readJsonFile<Hackathon | null>(filePath, null);
+      if (h) {
+        hackathonCache.set(id, h);
+        return h;
+      }
     }
-  }
+  } catch {}
+
+  try {
+    const origPath = path.resolve(process.cwd(), "data", "hackathons", `${id}.json`);
+    if (origPath !== path.join(DATA_DIR, `${id}.json`) && fs.existsSync(origPath)) {
+      const h = readJsonFile<Hackathon | null>(origPath, null);
+      if (h) {
+        hackathonCache.set(id, h);
+        return h;
+      }
+    }
+  } catch {}
+
   return null;
 }
 

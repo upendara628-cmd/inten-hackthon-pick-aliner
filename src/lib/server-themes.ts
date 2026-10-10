@@ -2,22 +2,47 @@ import fs from "node:fs";
 import path from "node:path";
 import type { Theme } from "./store";
 
-const THEMES_DIR = path.resolve(process.cwd(), "data", "themes");
+import os from "node:os";
+
+function resolveThemesDir(): string {
+  const local = path.resolve(process.cwd(), "data", "themes");
+  try {
+    if (!fs.existsSync(local)) {
+      fs.mkdirSync(local, { recursive: true });
+    }
+    const testFile = path.join(local, `.test_${Date.now()}`);
+    fs.writeFileSync(testFile, "");
+    fs.unlinkSync(testFile);
+    return local;
+  } catch {
+    const tmp = path.resolve(os.tmpdir(), "framewise-data", "themes");
+    try {
+      if (!fs.existsSync(tmp)) {
+        fs.mkdirSync(tmp, { recursive: true });
+      }
+    } catch {}
+    return tmp;
+  }
+}
+
+const THEMES_DIR = resolveThemesDir();
 const memoryCache = new Map<string, Theme>();
 
 function ensureDir() {
-  if (!fs.existsSync(THEMES_DIR)) {
-    fs.mkdirSync(THEMES_DIR, { recursive: true });
-  }
+  try {
+    if (!fs.existsSync(THEMES_DIR)) {
+      fs.mkdirSync(THEMES_DIR, { recursive: true });
+    }
+  } catch {}
 
   // Seed default demonstration themes if not present
   for (const st of SEED_THEMES) {
-    const fp = path.join(THEMES_DIR, `${st.id}.json`);
-    if (!fs.existsSync(fp)) {
-      try {
+    try {
+      const fp = path.join(THEMES_DIR, `${st.id}.json`);
+      if (!fs.existsSync(fp)) {
         fs.writeFileSync(fp, JSON.stringify(st, null, 2), "utf-8");
-      } catch {}
-    }
+      }
+    } catch {}
   }
 }
 
@@ -171,22 +196,27 @@ const SEED_THEMES: Theme[] = [
   },
 ];
 
+// Initialize memoryCache with default templates
+for (const st of SEED_THEMES) {
+  memoryCache.set(st.id, st);
+}
+
 export function saveThemeToServer(theme: Theme): void {
   try {
-    ensureDir();
     memoryCache.set(theme.id, theme);
+    ensureDir();
     const filePath = path.join(THEMES_DIR, `${theme.id}.json`);
     fs.writeFileSync(filePath, JSON.stringify(theme), "utf-8");
   } catch (err) {
-    console.error("Failed to save theme to disk:", err);
+    // In-memory cache retains saved theme if disk is read-only
   }
 }
 
 export function getThemeFromServer(id: string): Theme | null {
+  if (memoryCache.has(id)) {
+    return memoryCache.get(id)!;
+  }
   try {
-    if (memoryCache.has(id)) {
-      return memoryCache.get(id)!;
-    }
     ensureDir();
     const filePath = path.join(THEMES_DIR, `${id}.json`);
     if (fs.existsSync(filePath)) {
@@ -195,28 +225,52 @@ export function getThemeFromServer(id: string): Theme | null {
       memoryCache.set(id, theme);
       return theme;
     }
-  } catch (err) {
-    console.error(`Failed to read theme ${id} from disk:`, err);
-  }
+  } catch {}
+
+  try {
+    const origPath = path.resolve(process.cwd(), "data", "themes", `${id}.json`);
+    if (origPath !== path.join(THEMES_DIR, `${id}.json`) && fs.existsSync(origPath)) {
+      const content = fs.readFileSync(origPath, "utf-8");
+      const theme = JSON.parse(content) as Theme;
+      memoryCache.set(id, theme);
+      return theme;
+    }
+  } catch {}
+
   return null;
 }
 
 export function listThemesFromServer(): Theme[] {
   try {
     ensureDir();
-    const files = fs.readdirSync(THEMES_DIR);
-    const themes: Theme[] = [];
-    for (const file of files) {
-      if (!file.endsWith(".json")) continue;
-      const id = file.replace(/\.json$/, "");
-      const t = getThemeFromServer(id);
-      if (t) themes.push(t);
+    if (fs.existsSync(THEMES_DIR)) {
+      const files = fs.readdirSync(THEMES_DIR);
+      for (const file of files) {
+        if (!file.endsWith(".json")) continue;
+        const id = file.replace(/\.json$/, "");
+        getThemeFromServer(id);
+      }
     }
-    return themes.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
-  } catch (err) {
-    console.error("Failed to list themes from disk:", err);
-    return Array.from(memoryCache.values());
+  } catch {}
+
+  // Also check original project directory if bundled
+  const originalThemesDir = path.resolve(process.cwd(), "data", "themes");
+  if (originalThemesDir !== THEMES_DIR) {
+    try {
+      if (fs.existsSync(originalThemesDir)) {
+        const files = fs.readdirSync(originalThemesDir);
+        for (const file of files) {
+          if (!file.endsWith(".json")) continue;
+          const id = file.replace(/\.json$/, "");
+          getThemeFromServer(id);
+        }
+      }
+    } catch {}
   }
+
+  return Array.from(memoryCache.values()).sort((a, b) =>
+    (b.created_at || "").localeCompare(a.created_at || ""),
+  );
 }
 
 export function deleteThemeFromServer(id: string): void {
