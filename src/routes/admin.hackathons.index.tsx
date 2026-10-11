@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
 import {
   apiArchiveHackathon,
+  apiDeleteHackathon,
   apiListHackathons,
   apiUpdateHackathonStatus,
   getExcelExportUrl,
@@ -28,6 +29,16 @@ import {
 import type { Hackathon } from "@/lib/hackathon-types";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/admin/hackathons/")({
   head: () => ({
@@ -48,6 +59,8 @@ function AdminHackathonsIndex() {
   const [hackathons, setHackathons] = useState<Hackathon[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<Hackathon | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     loadHackathons();
@@ -80,6 +93,21 @@ function AdminHackathonsIndex() {
       loadHackathons();
     } catch (err: any) {
       toast.error(err.message || "Failed to archive hackathon");
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await apiDeleteHackathon(deleteTarget.id, { permanent: true });
+      toast.success(`Hackathon "${deleteTarget.name}" permanently deleted`);
+      setDeleteTarget(null);
+      await loadHackathons();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete hackathon");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -258,12 +286,24 @@ function AdminHackathonsIndex() {
                       <button
                         type="button"
                         onClick={() => handleArchive(h.id, h.name)}
-                        className="flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-500 hover:text-red-600 hover:border-red-200"
+                        className="flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-500 hover:text-amber-600 hover:border-amber-200 hover:bg-amber-50/50 transition-all"
+                        title="Archive Hackathon"
                       >
                         <Archive className="h-3 w-3" />
                         <span>Archive</span>
                       </button>
                     )}
+
+                    {/* Delete */}
+                    <button
+                      type="button"
+                      onClick={() => setDeleteTarget(h)}
+                      className="flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-500 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50/50 transition-all"
+                      title="Permanently Delete Hackathon"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                      <span>Delete</span>
+                    </button>
                   </div>
                 </div>
 
@@ -314,6 +354,44 @@ function AdminHackathonsIndex() {
           </div>
         )}
       </main>
+
+      {/* Confirmation Dialog for Permanent Delete */}
+      <AlertDialog open={Boolean(deleteTarget)} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent className="rounded-3xl border border-rose-100 bg-white p-6 font-['Poppins',sans-serif] shadow-2xl sm:max-w-md">
+          <AlertDialogHeader>
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 mb-2">
+              <Trash2 className="h-6 w-6" />
+            </div>
+            <AlertDialogTitle className="text-center text-lg font-extrabold text-slate-900">
+              Delete Hackathon?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-xs text-slate-500 leading-relaxed">
+              Are you sure you want to permanently delete{" "}
+              <strong className="text-slate-800 font-bold">{deleteTarget?.name}</strong>?
+              <br />
+              This will erase all event configurations, problem attachments, team rosters, and project submissions. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-4 flex sm:justify-center gap-2">
+            <AlertDialogCancel
+              disabled={deleting}
+              className="rounded-xl text-xs font-semibold border-slate-200 hover:bg-slate-50"
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleting}
+              onClick={(e) => {
+                e.preventDefault();
+                handleConfirmDelete();
+              }}
+              className="rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-500/25"
+            >
+              {deleting ? "Deleting…" : "Yes, Delete Permanently"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

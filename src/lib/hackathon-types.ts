@@ -70,6 +70,7 @@ export interface UserProfile {
   rollNumber?: string | undefined;
   institution?: string | undefined;
   phone?: string | undefined;
+  picture?: string | undefined;
   token?: string | undefined;
 }
 

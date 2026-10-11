@@ -87,11 +87,19 @@ export function SiteHeader() {
 
           {/* User Auth Pill */}
           {user ? (
-            <div className="flex items-center gap-1.5 rounded-full border border-purple-200/80 bg-purple-50/70 p-1 pl-2.5">
+            <div className="flex items-center gap-1.5 rounded-full border border-purple-200/80 bg-purple-50/70 p-1 pl-2">
+              {user.picture ? (
+                <img
+                  src={user.picture}
+                  alt={user.name}
+                  className="h-7 w-7 rounded-full object-cover ring-1 ring-purple-300"
+                  referrerPolicy="no-referrer"
+                />
+              ) : null}
               <button
                 type="button"
                 onClick={() => setAuthModalOpen(true)}
-                className="flex flex-col text-right cursor-pointer hover:opacity-80 transition-opacity"
+                className="flex flex-col text-right cursor-pointer hover:opacity-80 transition-opacity pr-1"
                 title="Account Settings / Switch Demo User"
               >
                 <span className="text-[11px] font-bold text-slate-800 leading-tight max-w-[100px] truncate sm:max-w-none">

@@ -81,6 +81,25 @@ export async function apiLogin(payload: {
   return data.user;
 }
 
+export async function apiLoginWithGoogle(payload: {
+  credential: string;
+  role?: ("organizer" | "participant") | undefined;
+  rollNumber?: string | undefined;
+  institution?: string | undefined;
+  phone?: string | undefined;
+}): Promise<UserProfile> {
+  const res = await fetch("/api/auth/google", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await handleResponse<{ success: boolean; user: UserProfile }>(res);
+  if (data.user?.token) {
+    setApiAuthToken(data.user.token);
+  }
+  return data.user;
+}
+
 export async function apiGetMe(): Promise<UserProfile | null> {
   try {
     const res = await fetch("/api/auth/me", {
@@ -162,12 +181,20 @@ export async function apiUpdateHackathonStatus(
   return updated;
 }
 
-export async function apiArchiveHackathon(id: string): Promise<void> {
-  const res = await fetch(`/api/hackathons/${id}`, {
+export async function apiDeleteHackathon(
+  id: string,
+  options?: { permanent?: boolean },
+): Promise<void> {
+  const perm = options?.permanent ?? true;
+  const res = await fetch(`/api/hackathons/${id}?permanent=${perm}`, {
     method: "DELETE",
     headers: { ...getAuthHeader() },
   });
-  await handleResponse<{ success: boolean }>(res);
+  await handleResponse<{ success: boolean; message?: string }>(res);
+}
+
+export async function apiArchiveHackathon(id: string): Promise<void> {
+  return apiDeleteHackathon(id, { permanent: false });
 }
 
 export async function apiUploadProblemFile(

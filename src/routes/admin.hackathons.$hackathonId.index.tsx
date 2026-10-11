@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   Activity,
   FileSpreadsheet,
@@ -20,10 +20,12 @@ import {
   Archive,
   ArrowLeft,
   Flame,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
 import {
+  apiDeleteHackathon,
   apiGetAuditLogs,
   apiGetHackathon,
   apiGetHackathonStats,
@@ -32,6 +34,16 @@ import {
   apiUpdateHackathonStatus,
   getExcelExportUrl,
 } from "@/lib/hackathon-api";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import type {
   AuditLogEntry,
   Hackathon,
@@ -70,6 +82,22 @@ function LiveHackathonDashboard() {
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<"participants" | "audit">("participants");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const navigate = useNavigate();
+
+  const handleConfirmDelete = async () => {
+    setDeleting(true);
+    try {
+      await apiDeleteHackathon(hackathonId, { permanent: true });
+      toast.success(`Hackathon "${hackathon?.name}" permanently deleted`);
+      navigate({ to: "/admin/hackathons" });
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete hackathon");
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const refreshData = async (isBackground = false) => {
     if (!isBackground) setLoading(true);
@@ -232,6 +260,17 @@ function LiveHackathonDashboard() {
                 <span>End Event</span>
               </button>
             )}
+
+            {/* Delete Hackathon Button */}
+            <button
+              type="button"
+              onClick={() => setDeleteDialogOpen(true)}
+              className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-500 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50/50 transition-all"
+              title="Delete this hackathon"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              <span>Delete</span>
+            </button>
           </div>
         </div>
 
@@ -513,6 +552,44 @@ function LiveHackathonDashboard() {
           </div>
         )}
       </main>
+
+      {/* Confirmation Dialog for Permanent Delete */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent className="rounded-3xl border border-rose-100 bg-white p-6 font-['Poppins',sans-serif] shadow-2xl sm:max-w-md">
+          <AlertDialogHeader>
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 mb-2">
+              <Trash2 className="h-6 w-6" />
+            </div>
+            <AlertDialogTitle className="text-center text-lg font-extrabold text-slate-900">
+              Delete Hackathon?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-xs text-slate-500 leading-relaxed">
+              Are you sure you want to permanently delete{" "}
+              <strong className="text-slate-800 font-bold">{hackathon?.name}</strong>?
+              <br />
+              This will erase all event configurations, problem attachments, team rosters, and project submissions. You will be redirected back to the organizer console.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-4 flex sm:justify-center gap-2">
+            <AlertDialogCancel
+              disabled={deleting}
+              className="rounded-xl text-xs font-semibold border-slate-200 hover:bg-slate-50"
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleting}
+              onClick={(e) => {
+                e.preventDefault();
+                handleConfirmDelete();
+              }}
+              className="rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-500/25"
+            >
+              {deleting ? "Deleting…" : "Yes, Delete Permanently"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

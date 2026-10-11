@@ -21,7 +21,22 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
-import { apiGetHackathon, apiSaveHackathon, apiUploadProblemFile } from "@/lib/hackathon-api";
+import {
+  apiDeleteHackathon,
+  apiGetHackathon,
+  apiSaveHackathon,
+  apiUploadProblemFile,
+} from "@/lib/hackathon-api";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import type {
   AccessType,
   Hackathon,
@@ -75,6 +90,22 @@ function CreateHackathon() {
 
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(Boolean(editId));
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!editId) return;
+    setDeleting(true);
+    try {
+      await apiDeleteHackathon(editId, { permanent: true });
+      toast.success(`Hackathon "${name || editId}" permanently deleted`);
+      navigate({ to: "/admin/hackathons" });
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete hackathon");
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   // Visual validation errors banner
   const [formErrors, setFormErrors] = useState<string[]>([]);
@@ -837,15 +868,29 @@ function CreateHackathon() {
 
           {/* Action Buttons */}
           <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-purple-100">
-            <span className="text-[11px] text-slate-400">
-              {saving ? "Transmitting data to server…" : "Ready to save or publish"}
-            </span>
+            <div className="flex items-center gap-3">
+              {editId && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={saving || deleting}
+                  onClick={() => setDeleteDialogOpen(true)}
+                  className="rounded-2xl border-rose-200 text-rose-600 hover:bg-rose-50 hover:border-rose-300 text-xs font-bold flex items-center gap-1.5"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  <span>Delete Hackathon</span>
+                </Button>
+              )}
+              <span className="text-[11px] text-slate-400">
+                {saving ? "Transmitting data to server…" : "Ready to save or publish"}
+              </span>
+            </div>
 
             <div className="flex items-center gap-3">
               <Button
                 type="button"
                 variant="outline"
-                disabled={saving}
+                disabled={saving || deleting}
                 onClick={() => handleSave("DRAFT")}
                 className="rounded-2xl px-6 py-2.5 text-xs font-bold border-purple-200 hover:bg-purple-50"
               >
@@ -854,7 +899,7 @@ function CreateHackathon() {
 
               <Button
                 type="button"
-                disabled={saving}
+                disabled={saving || deleting}
                 onClick={() => handleSave("PUBLISHED")}
                 className="btn-studlyf-primary flex items-center gap-2 rounded-2xl px-8 py-3 text-xs font-bold shadow-lg shadow-purple-500/30"
               >
@@ -865,6 +910,44 @@ function CreateHackathon() {
           </div>
         </div>
       </main>
+
+      {/* Confirmation Dialog for Delete */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent className="rounded-3xl border border-rose-100 bg-white p-6 font-['Poppins',sans-serif] shadow-2xl sm:max-w-md">
+          <AlertDialogHeader>
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 mb-2">
+              <Trash2 className="h-6 w-6" />
+            </div>
+            <AlertDialogTitle className="text-center text-lg font-extrabold text-slate-900">
+              Delete Hackathon?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-xs text-slate-500 leading-relaxed">
+              Are you sure you want to permanently delete{" "}
+              <strong className="text-slate-800 font-bold">{name || editId}</strong>?
+              <br />
+              This will erase all event configurations, problem attachments, team rosters, and project submissions. You will be redirected back to the organizer console.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-4 flex sm:justify-center gap-2">
+            <AlertDialogCancel
+              disabled={deleting}
+              className="rounded-xl text-xs font-semibold border-slate-200 hover:bg-slate-50"
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleting}
+              onClick={(e) => {
+                e.preventDefault();
+                handleDelete();
+              }}
+              className="rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-500/25"
+            >
+              {deleting ? "Deleting…" : "Yes, Delete Permanently"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

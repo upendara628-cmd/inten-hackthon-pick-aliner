@@ -5,3 +5,9 @@
 [build.environment]
   NITRO_PRESET = "netlify"
   NODE_VERSION = "20"
+  VITE_GOOGLE_CLIENT_ID = "710869462719-t98vbra3i4pngjmmt2tbfptr78r2tamj.apps.googleusercontent.com"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cross-Origin-Opener-Policy = "same-origin-allow-popups"

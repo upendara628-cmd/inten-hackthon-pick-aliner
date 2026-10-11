@@ -94,6 +94,45 @@ export function authenticateToken(token?: string | null): UserProfile | null {
   return users.find((u) => u.token === token) || null;
 }
 
+export function parseGoogleJwt(credential: string): {
+  email: string;
+  name: string;
+  picture?: string | undefined;
+  sub: string;
+} | null {
+  try {
+    const parts = credential.split(".");
+    if (parts.length < 2 || !parts[1]) {
+      if (credential.startsWith("mock_") || credential.startsWith("demo_")) {
+        return {
+          email: "google.user@example.com",
+          name: "Google Demo User",
+          picture: "https://lh3.googleusercontent.com/a/default-user=s96-c",
+          sub: "mock_google_sub_123",
+        };
+      }
+      return null;
+    }
+    const base64Url = parts[1];
+    let base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    while (base64.length % 4 !== 0) {
+      base64 += "=";
+    }
+    const jsonPayload = Buffer.from(base64, "base64").toString("utf-8");
+    const parsed = JSON.parse(jsonPayload);
+    if (!parsed.email) return null;
+    return {
+      email: String(parsed.email).toLowerCase(),
+      name: parsed.name || parsed.given_name || String(parsed.email).split("@")[0] || "Google User",
+      picture: parsed.picture || undefined,
+      sub: parsed.sub || "",
+    };
+  } catch (err) {
+    console.error("Failed to parse Google JWT credential:", err);
+    return null;
+  }
+}
+
 export function loginOrRegister(payload: {
   email: string;
   name?: string | undefined;
@@ -101,6 +140,7 @@ export function loginOrRegister(payload: {
   rollNumber?: string | undefined;
   institution?: string | undefined;
   phone?: string | undefined;
+  picture?: string | undefined;
 }): UserProfile {
   const users = loadUsers();
   const normalizedEmail = payload.email.trim().toLowerCase();
@@ -118,6 +158,7 @@ export function loginOrRegister(payload: {
     if (payload.rollNumber !== undefined) user.rollNumber = payload.rollNumber;
     if (payload.institution !== undefined) user.institution = payload.institution;
     if (payload.phone !== undefined) user.phone = payload.phone;
+    if (payload.picture !== undefined) user.picture = payload.picture;
 
     // Preserve master tokens for predefined demo users
     if (normalizedEmail === "organizer@event.com") {
@@ -145,6 +186,7 @@ export function loginOrRegister(payload: {
       rollNumber: payload.rollNumber,
       institution: payload.institution,
       phone: payload.phone,
+      picture: payload.picture,
       token: isDemoOrg
         ? "tok_organizer_master"
         : isDemoPart

@@ -3,6 +3,7 @@ import type { UserProfile } from "./hackathon-types";
 import {
   apiGetMe,
   apiLogin,
+  apiLoginWithGoogle,
   apiUpdateProfile,
   clearApiAuthToken,
   setApiAuthToken,
@@ -18,6 +19,16 @@ interface AuthContextType {
       email: string;
       role: "organizer" | "participant";
       name?: string | undefined;
+      rollNumber?: string | undefined;
+      institution?: string | undefined;
+      phone?: string | undefined;
+    },
+    options?: { silent?: boolean },
+  ) => Promise<UserProfile>;
+  loginWithGoogle: (
+    payload: {
+      credential: string;
+      role: "organizer" | "participant";
       rollNumber?: string | undefined;
       institution?: string | undefined;
       phone?: string | undefined;
@@ -127,6 +138,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const loginWithGoogle = async (
+    payload: {
+      credential: string;
+      role: "organizer" | "participant";
+      rollNumber?: string | undefined;
+      institution?: string | undefined;
+      phone?: string | undefined;
+    },
+    options?: { silent?: boolean },
+  ): Promise<UserProfile> => {
+    setIsLoading(true);
+    try {
+      const u = await apiLoginWithGoogle(payload);
+      setUser(u);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(u));
+      if (u.token) {
+        setApiAuthToken(u.token);
+      }
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("framewise:auth-changed", { detail: u }));
+      }
+
+      if (!options?.silent) {
+        toast.success(`Signed in with Google as ${u.name} (${u.role})`);
+      }
+      return u;
+    } catch (err: any) {
+      if (!options?.silent) {
+        toast.error(err.message || "Google sign-in failed");
+      }
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const loginAsDemo = async (targetRole: "organizer" | "participant"): Promise<UserProfile> => {
     setIsLoading(true);
     try {
@@ -210,6 +258,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isLoading,
         isOrganizer,
         login,
+        loginWithGoogle,
         loginAsDemo,
         logout,
         updateProfile,

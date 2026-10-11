@@ -280,23 +280,88 @@ export function updateHackathonStatus(
   return h;
 }
 
+export function deleteHackathon(
+  id: string,
+  options?: { permanent?: boolean | undefined; actor?: { name: string; role: string } | undefined },
+): boolean {
+  const h = getHackathon(id);
+  if (!h) return false;
+
+  const permanent = options?.permanent ?? true;
+
+  if (permanent) {
+    // 1. Remove from in-memory caches
+    hackathonCache.delete(id);
+    participationsCache.delete(id);
+    teamsCache.delete(id);
+    submissionsCache.delete(id);
+    auditCache.delete(id);
+
+    // 2. Delete files from DATA_DIR
+    const filesToDelete = [
+      path.join(DATA_DIR, `${id}.json`),
+      path.join(DATA_DIR, `${id}_participations.json`),
+      path.join(DATA_DIR, `${id}_submissions.json`),
+      path.join(DATA_DIR, `${id}_teams.json`),
+      path.join(DATA_DIR, `${id}_audit.json`),
+    ];
+
+    for (const f of filesToDelete) {
+      try {
+        if (fs.existsSync(f)) {
+          fs.unlinkSync(f);
+        }
+      } catch {}
+    }
+
+    // Also remove from bundled project directory if DATA_DIR was redirected to /tmp
+    const originalDataDir = path.resolve(process.cwd(), "data", "hackathons");
+    if (originalDataDir !== DATA_DIR && fs.existsSync(originalDataDir)) {
+      for (const f of filesToDelete) {
+        const origF = path.join(originalDataDir, path.basename(f));
+        try {
+          if (fs.existsSync(origF)) {
+            fs.unlinkSync(origF);
+          }
+        } catch {}
+      }
+    }
+
+    // Clean up uploaded problem files in FILES_DIR
+    try {
+      if (fs.existsSync(FILES_DIR)) {
+        const pFiles = fs.readdirSync(FILES_DIR);
+        for (const pf of pFiles) {
+          if (pf.startsWith(`${id}_`)) {
+            try {
+              fs.unlinkSync(path.join(FILES_DIR, pf));
+            } catch {}
+          }
+        }
+      }
+    } catch {}
+
+    return true;
+  } else {
+    // Soft-delete / Archive
+    h.status = "ARCHIVED";
+    saveHackathon(h, options?.actor);
+    recordAuditLog(
+      id,
+      options?.actor?.name || "Organizer",
+      options?.actor?.role || "organizer",
+      "HACKATHON_ARCHIVED",
+      `Hackathon "${h.name}" archived.`,
+    );
+    return true;
+  }
+}
+
 export function deleteOrArchiveHackathon(
   id: string,
   actor?: { name: string; role: string },
 ): boolean {
-  const h = getHackathon(id);
-  if (!h) return false;
-  // Prefer Archive soft-delete
-  h.status = "ARCHIVED";
-  saveHackathon(h, actor);
-  recordAuditLog(
-    id,
-    actor?.name || "Organizer",
-    actor?.role || "organizer",
-    "HACKATHON_ARCHIVED",
-    `Hackathon "${h.name}" archived.`,
-  );
-  return true;
+  return deleteHackathon(id, actor ? { permanent: true, actor } : { permanent: true });
 }
 
 // ============================================================================

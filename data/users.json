@@ -36,5 +36,24 @@
     "institution": "Institute of Engineering",
     "phone": "+91 98765 43210",
     "token": "tok_yjgukdwpnx"
+  },
+  {
+    "id": "usr_fbr7u863",
+    "email": "google.user@example.com",
+    "name": "Google Demo User",
+    "role": "participant",
+    "rollNumber": "",
+    "institution": "",
+    "phone": "",
+    "picture": "https://lh3.googleusercontent.com/a/default-user=s96-c",
+    "token": "tok_tq5crow2jp"
+  },
+  {
+    "id": "usr_6xndwuyw",
+    "email": "e2e.google.user@gmail.com",
+    "name": "E2E Google Tester",
+    "role": "organizer",
+    "picture": "https://lh3.googleusercontent.com/test-pic.jpg",
+    "token": "tok_8fh6767bxb"
   }
 ]

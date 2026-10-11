@@ -1,8 +1,9 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { authenticateToken, loginOrRegister, updateUserProfile } from "./server-auth";
+import { authenticateToken, loginOrRegister, updateUserProfile, parseGoogleJwt } from "./server-auth";
 import {
   createOrUpdateSubmission,
   createTeam,
+  deleteHackathon,
   deleteOrArchiveHackathon,
   generateExcelReport,
   getAuditLogs,
@@ -83,6 +84,39 @@ export async function handleConnectApi(
   }
 
   // 2. Auth endpoints
+  if (pathname === "/api/auth/google" && req.method === "POST") {
+    try {
+      const body = await parseBody(req);
+      if (!body.credential) {
+        res.statusCode = 400;
+        res.end(JSON.stringify({ error: "Missing Google credential" }));
+        return;
+      }
+      const jwtData = parseGoogleJwt(body.credential);
+      if (!jwtData) {
+        res.statusCode = 400;
+        res.end(JSON.stringify({ error: "Invalid Google credential" }));
+        return;
+      }
+      const user = loginOrRegister({
+        email: jwtData.email,
+        name: jwtData.name,
+        picture: jwtData.picture,
+        role: body.role || "participant",
+        rollNumber: body.rollNumber,
+        institution: body.institution,
+        phone: body.phone,
+      });
+      res.setHeader("Content-Type", "application/json");
+      res.statusCode = 200;
+      res.end(JSON.stringify({ success: true, user }));
+    } catch {
+      res.statusCode = 500;
+      res.end(JSON.stringify({ error: "Internal server error" }));
+    }
+    return;
+  }
+
   if (pathname === "/api/auth/login" && req.method === "POST") {
     try {
       const body = await parseBody(req);
@@ -393,13 +427,22 @@ export async function handleConnectApi(
 
       if (req.method === "DELETE") {
         const user = getAuthUser(req);
-        deleteOrArchiveHackathon(hackathonId, {
-          name: user?.name || "Organizer",
-          role: user?.role || "organizer",
+        const isPermanent = query.get("permanent") !== "false";
+        deleteHackathon(hackathonId, {
+          permanent: isPermanent,
+          actor: {
+            name: user?.name || "Organizer",
+            role: user?.role || "organizer",
+          },
         });
         res.setHeader("Content-Type", "application/json");
         res.statusCode = 200;
-        res.end(JSON.stringify({ success: true, message: "Archived successfully" }));
+        res.end(
+          JSON.stringify({
+            success: true,
+            message: isPermanent ? "Hackathon permanently deleted" : "Archived successfully",
+          }),
+        );
         return;
       }
     }
@@ -424,6 +467,33 @@ export async function handleWebFetchApi(request: Request): Promise<Response | nu
       }),
       { headers: { "content-type": "application/json" } },
     );
+  }
+
+  if (pathname === "/api/auth/google" && request.method === "POST") {
+    try {
+      const body = (await request.json()) as any;
+      if (!body.credential) {
+        return new Response(JSON.stringify({ error: "Missing Google credential" }), { status: 400 });
+      }
+      const jwtData = parseGoogleJwt(body.credential);
+      if (!jwtData) {
+        return new Response(JSON.stringify({ error: "Invalid Google credential" }), { status: 400 });
+      }
+      const user = loginOrRegister({
+        email: jwtData.email,
+        name: jwtData.name,
+        picture: jwtData.picture,
+        role: body.role || "participant",
+        rollNumber: body.rollNumber,
+        institution: body.institution,
+        phone: body.phone,
+      });
+      return new Response(JSON.stringify({ success: true, user }), {
+        headers: { "content-type": "application/json" },
+      });
+    } catch {
+      return new Response(JSON.stringify({ error: "Internal server error" }), { status: 500 });
+    }
   }
 
   if (pathname === "/api/auth/login" && request.method === "POST") {
@@ -689,13 +759,23 @@ export async function handleWebFetchApi(request: Request): Promise<Response | nu
 
       if (request.method === "DELETE") {
         const user = getAuthUserFromRequest(request);
-        deleteOrArchiveHackathon(hackathonId, {
-          name: user?.name || "Organizer",
-          role: user?.role || "organizer",
+        const isPermanent = url.searchParams.get("permanent") !== "false";
+        deleteHackathon(hackathonId, {
+          permanent: isPermanent,
+          actor: {
+            name: user?.name || "Organizer",
+            role: user?.role || "organizer",
+          },
         });
-        return new Response(JSON.stringify({ success: true }), {
-          headers: { "content-type": "application/json" },
-        });
+        return new Response(
+          JSON.stringify({
+            success: true,
+            message: isPermanent ? "Hackathon permanently deleted" : "Archived successfully",
+          }),
+          {
+            headers: { "content-type": "application/json" },
+          },
+        );
       }
     }
   }

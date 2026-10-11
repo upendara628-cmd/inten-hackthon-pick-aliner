@@ -45,6 +45,54 @@ async function main() {
     assert.ok(deltaMs < 10000, `Timestamp skew too high (${deltaMs}ms)`);
   });
 
+  // 1b. Google Authentication Endpoint (/api/auth/google)
+  await runTest("Google Auth Verification (/api/auth/google)", async () => {
+    // Construct valid Google ID Token structure (header.payload.sig)
+    const header = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString("base64url");
+    const payload = Buffer.from(
+      JSON.stringify({
+        email: "e2e.google.user@gmail.com",
+        name: "E2E Google Tester",
+        picture: "https://lh3.googleusercontent.com/test-pic.jpg",
+        sub: "google_sub_e2e_12345",
+      }),
+    ).toString("base64url");
+    const testGoogleJwt = `${header}.${payload}.mock_signature_bytes`;
+
+    const res = await fetch(`${BASE_URL}/api/auth/google`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        credential: testGoogleJwt,
+        role: "organizer",
+      }),
+    });
+    assert.equal(res.status, 200, "Google auth endpoint should return 200");
+    const data = await res.json();
+    assert.ok(data.success, "Google auth should return success: true");
+    assert.equal(data.user.email, "e2e.google.user@gmail.com");
+    assert.equal(data.user.name, "E2E Google Tester");
+    assert.equal(data.user.picture, "https://lh3.googleusercontent.com/test-pic.jpg");
+    assert.equal(data.user.role, "organizer");
+    assert.ok(data.user.token, "User should receive active auth token");
+
+    // Verify token works with /api/auth/me
+    const meRes = await fetch(`${BASE_URL}/api/auth/me`, {
+      headers: { Authorization: `Bearer ${data.user.token}` },
+    });
+    assert.equal(meRes.status, 200, "/api/auth/me should authenticate Google user");
+    const meData = await meRes.json();
+    assert.equal(meData.user.email, "e2e.google.user@gmail.com");
+
+    // Invalid credential rejection
+    const badRes = await fetch(`${BASE_URL}/api/auth/google`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ credential: "invalid_gibberish" }),
+    });
+    assert.equal(badRes.status, 400, "Should reject invalid Google credential with 400");
+  });
+
   // 2. Themes Persistence & Percentage Coordinates
   await runTest("Theme Creation with Percentage Bounding Box (/api/themes)", async () => {
     const themePayload = {
