@@ -113,8 +113,14 @@ function Customizer() {
             again or browse the gallery.
           </p>
           <div className="mt-6 flex justify-center gap-3">
-            <Link to="/gallery" className="btn-studlyf-primary px-6 py-2.5 text-xs font-bold">
-              Browse Gallery
+            <Link to="/" className="btn-studlyf-primary px-6 py-2.5 text-xs font-bold">
+              Return Home
+            </Link>
+            <Link
+              to="/hackathons"
+              className="rounded-full border border-purple-200 bg-white px-6 py-2.5 text-xs font-bold text-slate-700 hover:border-[#6C2BFF] hover:text-[#6C2BFF] transition-all"
+            >
+              Explore Hackathons
             </Link>
           </div>
         </div>

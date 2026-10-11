@@ -75,12 +75,14 @@ export function SiteHeader() {
               </Link>
             )}
 
-            <Link to="/gallery" className={linkBase} activeProps={{ className: linkActive }}>
-              <span className="flex items-center gap-1.5">
-                <Layers className="h-3.5 w-3.5 text-[#6C2BFF]" />
-                <span className="hidden sm:inline">Theme</span> Gallery
-              </span>
-            </Link>
+            {isOrganizer && (
+              <Link to="/gallery" className={linkBase} activeProps={{ className: linkActive }}>
+                <span className="flex items-center gap-1.5">
+                  <Layers className="h-3.5 w-3.5 text-[#6C2BFF]" />
+                  <span className="hidden sm:inline">Theme</span> Gallery
+                </span>
+              </Link>
+            )}
           </nav>
 
           {/* User Auth Pill */}

@@ -15,10 +15,13 @@ import {
   Plus,
   X,
   ShieldCheck,
+  ShieldAlert,
+  Lock,
   UserCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
+import { AuthModal } from "@/components/auth-modal";
 import { deleteTheme, listThemes, shareLinkFor, getTextFields, type Theme } from "@/lib/store";
 import { useAuth } from "@/lib/auth-context";
 import {
@@ -41,7 +44,8 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export function ThemeGalleryView() {
-  const { user, isOrganizer } = useAuth();
+  const { user, isOrganizer, isLoading, switchRole } = useAuth();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const [themes, setThemes] = useState<Theme[] | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedShape, setSelectedShape] = useState<"all" | "circle" | "rectangle">("all");
@@ -51,8 +55,10 @@ export function ThemeGalleryView() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    listThemes().then(setThemes);
-  }, []);
+    if (isOrganizer) {
+      listThemes().then(setThemes);
+    }
+  }, [isOrganizer]);
 
   const shareLink = (theme: Theme) => shareLinkFor(theme);
 
@@ -120,6 +126,124 @@ export function ThemeGalleryView() {
     return list;
   }, [themes, searchQuery, selectedShape, sortBy]);
 
+  // 1. Loading State
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-studlyf-ambient font-['Poppins',sans-serif] text-slate-800">
+        <SiteHeader />
+        <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-[#6C2BFF]" />
+          <span className="text-sm font-semibold text-slate-500">
+            Verifying administrator access…
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Unauthenticated State (Before login, no one can see the gallery)
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-studlyf-ambient font-['Poppins',sans-serif] text-slate-800">
+        <SiteHeader />
+        <main className="mx-auto max-w-xl px-5 py-20 text-center">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-purple-100 text-[#6C2BFF] shadow-inner mb-6">
+            <Lock className="h-10 w-10 text-[#6C2BFF]" />
+          </div>
+
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 border border-rose-200 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-rose-700">
+            <ShieldAlert className="h-3.5 w-3.5 text-rose-600" />
+            <span>Admin Authentication Required</span>
+          </span>
+
+          <h1 className="mt-4 text-3xl font-black text-slate-900 tracking-tight sm:text-4xl">
+            Theme Gallery is Locked
+          </h1>
+
+          <p className="mt-3 text-sm leading-relaxed text-slate-600">
+            Before logging in, the template gallery cannot be viewed. Only verified administrators
+            and event organizers can inspect, manage, and configure theme badge designs.
+          </p>
+
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => setAuthModalOpen(true)}
+              className="btn-studlyf-primary flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3.5 text-xs font-bold shadow-lg shadow-purple-500/25"
+            >
+              <ShieldCheck className="h-4 w-4" />
+              <span>Log In as Admin / Organizer</span>
+            </button>
+
+            <Link
+              to="/hackathons"
+              className="flex items-center justify-center gap-2 w-full sm:w-auto rounded-full border border-purple-200 bg-white px-6 py-3.5 text-xs font-bold text-slate-700 hover:border-[#6C2BFF] hover:text-[#6C2BFF] transition-all shadow-xs"
+            >
+              <Award className="h-4 w-4 text-[#EA580C]" />
+              <span>Explore Hackathons</span>
+            </Link>
+          </div>
+
+          <AuthModal
+            open={authModalOpen}
+            onOpenChange={setAuthModalOpen}
+            defaultRole="organizer"
+          />
+        </main>
+      </div>
+    );
+  }
+
+  // 3. Unauthorized Participant State (Logged in, but participant — only admin can see the gallery)
+  if (!isOrganizer) {
+    return (
+      <div className="min-h-screen bg-studlyf-ambient font-['Poppins',sans-serif] text-slate-800">
+        <SiteHeader />
+        <main className="mx-auto max-w-xl px-5 py-20 text-center">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-amber-100 text-amber-800 shadow-inner mb-6">
+            <ShieldAlert className="h-10 w-10 text-amber-700" />
+          </div>
+
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-200 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-amber-800">
+            <span>Admin Privilege Required</span>
+          </span>
+
+          <h1 className="mt-4 text-3xl font-black text-slate-900 tracking-tight sm:text-4xl">
+            Restricted to Administrators
+          </h1>
+
+          <p className="mt-3 text-sm leading-relaxed text-slate-600">
+            You are signed in as <strong className="text-slate-900">{user.name}</strong> with a{" "}
+            <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs font-bold uppercase tracking-wider text-[#EA580C]">
+              {user.role}
+            </span>{" "}
+            account. The Theme Gallery is exclusively accessible by event organizers and administrators.
+          </p>
+
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => switchRole("organizer")}
+              className="btn-studlyf-primary flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3.5 text-xs font-bold shadow-lg shadow-purple-500/25"
+            >
+              <ShieldCheck className="h-4 w-4" />
+              <span>Switch to Organizer Role</span>
+            </button>
+
+            <Link
+              to="/hackathons"
+              className="flex items-center justify-center gap-2 w-full sm:w-auto rounded-full border border-purple-200 bg-white px-6 py-3.5 text-xs font-bold text-slate-700 hover:border-[#6C2BFF] hover:text-[#6C2BFF] transition-all shadow-xs"
+            >
+              <Award className="h-4 w-4 text-[#EA580C]" />
+              <span>Return to Hackathons</span>
+            </Link>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // 4. Authorized Admin State: Render Full Gallery
   return (
     <div className="min-h-screen bg-studlyf-ambient font-['Poppins',sans-serif] text-slate-800">
       <SiteHeader />
@@ -131,49 +255,31 @@ export function ThemeGalleryView() {
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#6C2BFF]">
                 <Layers className="h-3.5 w-3.5" />
-                <span>Public Badge Templates</span>
+                <span>Admin Theme Management</span>
               </span>
 
-              {isOrganizer ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-bold text-amber-900 border border-amber-200">
-                  <ShieldCheck className="h-3 w-3 text-amber-700" />
-                  <span>Organizer Controls Active</span>
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-600">
-                  <UserCheck className="h-3 w-3 text-emerald-600" />
-                  <span>Participant &amp; Public View</span>
-                </span>
-              )}
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-bold text-amber-900 border border-amber-200">
+                <ShieldCheck className="h-3 w-3 text-amber-700" />
+                <span>Organizer Console Active</span>
+              </span>
             </div>
 
             <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
               Theme &amp; Badge Gallery
             </h1>
             <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-slate-600">
-              Browse saved badge designs, search by event format, and launch the participant customizer
-              directly with pre-configured photo bounding boxes and text slots.
+              Manage saved badge designs, inspect photo bounding box coordinates, and copy direct shareable links for participants.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            {isOrganizer ? (
-              <Link
-                to="/admin"
-                className="btn-studlyf-primary flex items-center gap-2 px-5 py-3 text-xs font-bold shadow-lg shadow-purple-500/25"
-              >
-                <Plus className="h-4 w-4" />
-                <span>Create New Theme</span>
-              </Link>
-            ) : (
-              <Link
-                to="/hackathons"
-                className="flex items-center gap-2 rounded-full border border-purple-200 bg-white/90 px-5 py-2.5 text-xs font-bold text-slate-700 shadow-xs hover:border-[#6C2BFF] hover:text-[#6C2BFF] transition-all"
-              >
-                <Award className="h-4 w-4 text-[#EA580C]" />
-                <span>Explore Hackathons</span>
-              </Link>
-            )}
+            <Link
+              to="/admin"
+              className="btn-studlyf-primary flex items-center gap-2 px-5 py-3 text-xs font-bold shadow-lg shadow-purple-500/25"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Create New Theme</span>
+            </Link>
           </div>
         </div>
 

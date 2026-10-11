@@ -23,6 +23,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
+import { useAuth } from "@/lib/auth-context";
 import { RATIOS, type RatioKey, getRatio } from "@/lib/ratios";
 import {
   DEFAULT_PHOTO_ADJUSTMENT,
@@ -117,6 +118,7 @@ const DEMO_TEXT_VALUES: UserTextValues = {
 };
 
 function Home() {
+  const { isOrganizer } = useAuth();
   const [activePreviewRatio, setActivePreviewRatio] = useState<RatioKey>("idcard");
   const [shapeType, setShapeType] = useState<ShapeType>("circle");
   const [photoAdjust, setPhotoAdjust] = useState<PhotoAdjustment>(DEFAULT_PHOTO_ADJUSTMENT);
@@ -255,14 +257,16 @@ function Home() {
               <span>Try Badge Customizer</span>
             </button>
 
-            <Link
-              to="/gallery"
-              className="flex items-center gap-2 rounded-full border border-purple-200/80 bg-white/80 px-6 py-3.5 text-sm font-semibold text-slate-700 shadow-xs hover:border-[#6C2BFF] hover:text-[#6C2BFF]"
-            >
-              <Layers className="h-4 w-4 text-[#7C3AED]" />
-              <span>Browse Badge Gallery</span>
-              <ExternalLink className="h-3.5 w-3.5 opacity-60" />
-            </Link>
+            {isOrganizer && (
+              <Link
+                to="/gallery"
+                className="flex items-center gap-2 rounded-full border border-purple-200/80 bg-white/80 px-6 py-3.5 text-sm font-semibold text-slate-700 shadow-xs hover:border-[#6C2BFF] hover:text-[#6C2BFF]"
+              >
+                <Layers className="h-4 w-4 text-[#7C3AED]" />
+                <span>Browse Badge Gallery</span>
+                <ExternalLink className="h-3.5 w-3.5 opacity-60" />
+              </Link>
+            )}
           </div>
 
           {/* Trust Highlights for Participants */}
