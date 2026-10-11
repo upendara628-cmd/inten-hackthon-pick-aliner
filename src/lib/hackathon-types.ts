@@ -5,7 +5,13 @@ export type AccessType = "public" | "private";
 export type HackathonStatus = "DRAFT" | "PUBLISHED" | "UPCOMING" | "LIVE" | "ENDED" | "ARCHIVED";
 
 export type ParticipantProgressStatus =
-  "NOT_STARTED" | "IN_PROGRESS" | "SUBMITTED" | "LATE" | "EXPIRED" | "DISQUALIFIED" | "CLOSED";
+  | "NOT_STARTED"
+  | "IN_PROGRESS"
+  | "SUBMITTED"
+  | "LATE"
+  | "EXPIRED"
+  | "DISQUALIFIED"
+  | "CLOSED";
 
 export interface ProblemOriginalFile {
   filename: string;
@@ -13,19 +19,19 @@ export interface ProblemOriginalFile {
   fileType: string;
   size: number;
   uploadedAt: string;
-  extractedTextPreview?: string;
+  extractedTextPreview?: string | undefined;
 }
 
 export interface ProblemStatement {
   title: string;
   content: string;
-  objective?: string;
-  requirements?: string;
-  constraints?: string;
-  expectedOutput?: string;
-  evaluationCriteria?: string;
-  additionalInstructions?: string;
-  originalFile?: ProblemOriginalFile;
+  objective?: string | undefined;
+  requirements?: string | undefined;
+  constraints?: string | undefined;
+  expectedOutput?: string | undefined;
+  evaluationCriteria?: string | undefined;
+  additionalInstructions?: string | undefined;
+  originalFile?: ProblemOriginalFile | undefined;
 }
 
 export interface Hackathon {
@@ -38,12 +44,12 @@ export interface Hackathon {
   venue: string; // e.g. "Main Auditorium" or "Online"
   startDate: string; // ISO
   endDate: string; // ISO
-  registrationStart?: string;
-  registrationEnd?: string;
+  registrationStart?: string | undefined;
+  registrationEnd?: string | undefined;
   participationType: ParticipationType;
   minTeamSize: number;
   maxTeamSize: number;
-  teamRules?: string;
+  teamRules?: string | undefined;
   timerMode: TimerMode;
   globalStartTime: string; // ISO
   globalEndTime: string; // ISO
@@ -61,17 +67,17 @@ export interface UserProfile {
   email: string;
   name: string;
   role: "organizer" | "participant";
-  rollNumber?: string;
-  institution?: string;
-  phone?: string;
-  token?: string;
+  rollNumber?: string | undefined;
+  institution?: string | undefined;
+  phone?: string | undefined;
+  token?: string | undefined;
 }
 
 export interface TeamMember {
   id: string;
   name: string;
   email: string;
-  rollNumber?: string;
+  rollNumber?: string | undefined;
 }
 
 export interface Team {
@@ -90,15 +96,15 @@ export interface HackathonParticipation {
   participantType: "individual" | "team";
   participantId: string; // User ID or Team ID
   participantName: string;
-  email?: string;
-  rollNumber?: string;
-  institution?: string;
-  teamMembersSummary?: string;
+  email?: string | undefined;
+  rollNumber?: string | undefined;
+  institution?: string | undefined;
+  teamMembersSummary?: string | undefined;
   registeredAt: string;
-  startedAt?: string; // Authoritative server timestamp (ISO)
-  deadlineAt?: string; // Authoritative server timestamp (ISO)
+  startedAt?: string | undefined; // Authoritative server timestamp (ISO)
+  deadlineAt?: string | undefined; // Authoritative server timestamp (ISO)
   status: ParticipantProgressStatus;
-  submissionId?: string;
+  submissionId?: string | undefined;
 }
 
 export interface Submission {
@@ -110,8 +116,8 @@ export interface Submission {
   projectTitle: string;
   description: string;
   githubUrl: string;
-  demoUrl?: string;
-  additionalNotes?: string;
+  demoUrl?: string | undefined;
+  additionalNotes?: string | undefined;
   submittedAt: string;
   deadlineAt: string;
   status: "SUBMITTED" | "LATE";

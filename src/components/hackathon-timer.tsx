@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import { Clock, AlertTriangle, CheckCircle2, Flame } from "lucide-react";
 
 interface HackathonTimerProps {
-  deadlineAt?: string;
-  startedAt?: string;
-  serverTimeSkewMs?: number; // Difference between server time and local time
-  status?: string;
-  timerMode?: "global" | "individual";
-  onExpire?: () => void;
-  className?: string;
+  deadlineAt?: string | undefined;
+  startedAt?: string | undefined;
+  serverTimeSkewMs?: number | undefined; // Difference between server time and local time
+  status?: string | undefined;
+  timerMode?: ("global" | "individual") | undefined;
+  onExpire?: (() => void) | undefined;
+  className?: string | undefined;
 }
 
 export function HackathonTimer({

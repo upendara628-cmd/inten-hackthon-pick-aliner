@@ -96,17 +96,20 @@ export function authenticateToken(token?: string | null): UserProfile | null {
 
 export function loginOrRegister(payload: {
   email: string;
-  name?: string;
-  role?: "organizer" | "participant";
-  rollNumber?: string;
-  institution?: string;
-  phone?: string;
+  name?: string | undefined;
+  role?: ("organizer" | "participant") | undefined;
+  rollNumber?: string | undefined;
+  institution?: string | undefined;
+  phone?: string | undefined;
 }): UserProfile {
   const users = loadUsers();
   const normalizedEmail = payload.email.trim().toLowerCase();
-  let user = users.find((u) => u.email.toLowerCase() === normalizedEmail);
+  const existingUser = users.find((u) => u.email.toLowerCase() === normalizedEmail);
 
-  if (user) {
+  let user: UserProfile;
+
+  if (existingUser) {
+    user = existingUser;
     // Explicitly update role if provided in the payload
     if (payload.role) {
       user.role = payload.role;
@@ -137,7 +140,7 @@ export function loginOrRegister(payload: {
     user = {
       id: isDemoOrg ? "org_admin" : isDemoPart ? "part_demo_1" : "usr_" + Math.random().toString(36).slice(2, 10),
       email: payload.email.trim(),
-      name: payload.name || payload.email.split("@")[0],
+      name: payload.name || payload.email.split("@")[0] || "User",
       role: isDemoOrg ? "organizer" : isDemoPart ? "participant" : payload.role || "participant",
       rollNumber: payload.rollNumber,
       institution: payload.institution,

@@ -17,10 +17,10 @@ interface AuthContextType {
     payload: {
       email: string;
       role: "organizer" | "participant";
-      name?: string;
-      rollNumber?: string;
-      institution?: string;
-      phone?: string;
+      name?: string | undefined;
+      rollNumber?: string | undefined;
+      institution?: string | undefined;
+      phone?: string | undefined;
     },
     options?: { silent?: boolean },
   ) => Promise<UserProfile>;
@@ -93,10 +93,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     payload: {
       email: string;
       role: "organizer" | "participant";
-      name?: string;
-      rollNumber?: string;
-      institution?: string;
-      phone?: string;
+      name?: string | undefined;
+      rollNumber?: string | undefined;
+      institution?: string | undefined;
+      phone?: string | undefined;
     },
     options?: { silent?: boolean },
   ): Promise<UserProfile> => {

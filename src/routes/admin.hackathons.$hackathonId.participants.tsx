@@ -74,7 +74,11 @@ function ParticipantsDeepView() {
                 Organizer Console
               </Link>
               <span>/</span>
-              <Link to={`/admin/hackathons/${hackathon.id}`} className="hover:text-[#6C2BFF]">
+              <Link
+                to="/admin/hackathons/$hackathonId"
+                params={{ hackathonId: hackathon.id }}
+                className="hover:text-[#6C2BFF]"
+              >
                 {hackathon.name}
               </Link>
               <span>/</span>

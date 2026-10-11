@@ -20,7 +20,7 @@ function themesApiPlugin(): Plugin {
           return next();
         }
 
-        const pathname = url.split("?")[0];
+        const pathname = url.split("?")[0] || "";
         const parts = pathname
           .replace(/^\/api\/themes\/?/, "")
           .split("/")

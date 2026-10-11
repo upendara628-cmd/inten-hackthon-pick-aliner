@@ -102,7 +102,8 @@ const DEFAULT_HACKATHONS: Hackathon[] = [
     timerMode: "global",
     globalStartTime: "2026-11-05T10:00:00.000Z",
     globalEndTime: "2026-11-07T18:00:00.000Z",
-    submissionPolicy: "strict_cutoff",
+    individualDurationMinutes: 2880,
+    submissionPolicy: "lock_on_deadline",
     accessType: "public",
     status: "PUBLISHED",
     problemStatement: {
@@ -566,17 +567,19 @@ export function createOrUpdateSubmission(
   const submissionStatus = isAfterDeadline ? "LATE" : "SUBMITTED";
 
   const allSubs = listSubmissions(hackathonId);
-  let sub = allSubs.find((s) => s.participationId === payload.participationId);
+  const existingSub = allSubs.find((s) => s.participationId === payload.participationId);
+  let sub: Submission;
 
-  if (sub) {
-    sub.projectTitle = payload.projectTitle;
-    sub.description = payload.description;
-    sub.githubUrl = payload.githubUrl;
-    sub.demoUrl = payload.demoUrl;
-    sub.additionalNotes = payload.additionalNotes;
-    sub.submittedAt = nowIso;
-    sub.status = submissionStatus;
-    sub.lateBySeconds = lateBySeconds;
+  if (existingSub) {
+    existingSub.projectTitle = payload.projectTitle;
+    existingSub.description = payload.description;
+    existingSub.githubUrl = payload.githubUrl;
+    existingSub.demoUrl = payload.demoUrl;
+    existingSub.additionalNotes = payload.additionalNotes;
+    existingSub.submittedAt = nowIso;
+    existingSub.status = submissionStatus;
+    existingSub.lateBySeconds = lateBySeconds;
+    sub = existingSub;
   } else {
     sub = {
       id: "sub_" + Math.random().toString(36).slice(2, 10),
@@ -735,8 +738,11 @@ export function saveUploadedProblemFile(
       const workbook = XLSX.read(buffer, { type: "buffer" });
       const firstSheet = workbook.SheetNames[0];
       if (firstSheet) {
-        const csv = XLSX.utils.sheet_to_csv(workbook.Sheets[firstSheet]);
-        extractedTextPreview = csv.slice(0, 1500);
+        const sheet = workbook.Sheets[firstSheet];
+        if (sheet) {
+          const csv = XLSX.utils.sheet_to_csv(sheet);
+          extractedTextPreview = csv.slice(0, 1500);
+        }
       }
     } catch (e) {
       console.warn("Could not preview excel content:", e);

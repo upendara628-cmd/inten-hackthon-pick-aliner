@@ -69,9 +69,9 @@ export function RatioCanvas({
 
     // Convert pixel delta to percentage of photo slot dimensions
     // The photo slot width is approximately (theme.photo_width / 100) of the canvas view
-    const slotFraction = Math.max(0.15, (theme.photo_width || 35) / 100);
+    const slotFraction = Math.max(0.15, (theme.box_width || 35) / 100);
     const slotPixelW = rect.width * slotFraction;
-    const slotPixelH = rect.height * Math.max(0.15, (theme.photo_height || 35) / 100);
+    const slotPixelH = rect.height * Math.max(0.15, (theme.box_height || 35) / 100);
 
     const deltaPercentX = (dx / slotPixelW) * 100;
     const deltaPercentY = (dy / slotPixelH) * 100;

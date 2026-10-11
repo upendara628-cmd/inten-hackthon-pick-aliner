@@ -215,7 +215,8 @@ function AdminHackathonsIndex() {
                   <div className="flex flex-wrap items-center gap-2">
                     {/* Live Monitor Button */}
                     <Link
-                      to={`/admin/hackathons/${h.id}`}
+                      to="/admin/hackathons/$hackathonId"
+                      params={{ hackathonId: h.id }}
                       className="btn-studlyf-primary flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold shadow-xs"
                     >
                       <Activity className="h-3.5 w-3.5" />

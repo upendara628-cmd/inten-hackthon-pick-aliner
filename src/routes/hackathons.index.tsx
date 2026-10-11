@@ -306,7 +306,8 @@ function HackathonsList() {
                   </div>
 
                   <Link
-                    to={`/hackathons/${h.id}`}
+                    to="/hackathons/$hackathonId"
+                    params={{ hackathonId: h.id }}
                     className="flex items-center gap-1.5 rounded-full bg-purple-50 px-4 py-2 text-xs font-bold text-[#6C2BFF] transition-all hover:bg-[#6C2BFF] hover:text-white group-hover:shadow-xs"
                   >
                     <span>Enter Event</span>

@@ -212,7 +212,11 @@ function SubmissionPage() {
                 Hackathons
               </Link>
               <span>/</span>
-              <Link to={`/hackathons/${hackathon.id}`} className="hover:text-[#6C2BFF]">
+              <Link
+                to="/hackathons/$hackathonId"
+                params={{ hackathonId: hackathon.id }}
+                className="hover:text-[#6C2BFF]"
+              >
                 {hackathon.name}
               </Link>
               <span>/</span>
@@ -225,7 +229,8 @@ function SubmissionPage() {
           </div>
 
           <Link
-            to={`/hackathons/${hackathon.id}/problem`}
+            to="/hackathons/$hackathonId/problem"
+            params={{ hackathonId: hackathon.id }}
             className="flex items-center gap-1.5 text-xs font-bold text-[#6C2BFF] hover:underline"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
@@ -294,7 +299,8 @@ function SubmissionPage() {
                   </p>
                   <div className="mt-5">
                     <Link
-                      to={`/hackathons/${hackathon.id}`}
+                      to="/hackathons/$hackathonId"
+                      params={{ hackathonId: hackathon.id }}
                       className="btn-studlyf-primary px-5 py-2.5 text-xs font-bold inline-block"
                     >
                       Go to Event Start Page

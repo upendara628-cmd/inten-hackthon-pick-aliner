@@ -63,11 +63,11 @@ export async function fetchServerTime(): Promise<ServerTimeResponse> {
 
 export async function apiLogin(payload: {
   email: string;
-  name?: string;
-  role?: "organizer" | "participant";
-  rollNumber?: string;
-  institution?: string;
-  phone?: string;
+  name?: string | undefined;
+  role?: ("organizer" | "participant") | undefined;
+  rollNumber?: string | undefined;
+  institution?: string | undefined;
+  phone?: string | undefined;
 }): Promise<UserProfile> {
   const res = await fetch("/api/auth/login", {
     method: "POST",
@@ -213,10 +213,10 @@ export async function apiStartParticipation(
     participantType: "individual" | "team";
     participantId: string;
     participantName: string;
-    email?: string;
-    rollNumber?: string;
-    institution?: string;
-    teamMembersSummary?: string;
+    email?: string | undefined;
+    rollNumber?: string | undefined;
+    institution?: string | undefined;
+    teamMembersSummary?: string | undefined;
   },
 ): Promise<{ participation: HackathonParticipation; serverTime: string }> {
   const res = await fetch(`/api/hackathons/${hackathonId}/participations/start`, {
@@ -278,8 +278,8 @@ export async function apiSubmitProject(
     projectTitle: string;
     description: string;
     githubUrl: string;
-    demoUrl?: string;
-    additionalNotes?: string;
+    demoUrl?: string | undefined;
+    additionalNotes?: string | undefined;
   },
 ): Promise<{ submission: Submission; participation: HackathonParticipation }> {
   const res = await fetch(`/api/hackathons/${hackathonId}/submissions`, {

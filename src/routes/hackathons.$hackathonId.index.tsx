@@ -322,7 +322,8 @@ function HackathonDetail() {
                 </span>
 
                 <Link
-                  to={`/hackathons/${hackathon.id}/problem`}
+                  to="/hackathons/$hackathonId/problem"
+                  params={{ hackathonId: hackathon.id }}
                   className="flex items-center justify-between rounded-2xl border border-purple-100 bg-purple-50/40 p-3.5 transition-all hover:bg-purple-100/60"
                 >
                   <div className="flex items-center gap-3">
@@ -338,7 +339,8 @@ function HackathonDetail() {
                 </Link>
 
                 <Link
-                  to={`/hackathons/${hackathon.id}/submission`}
+                  to="/hackathons/$hackathonId/submission"
+                  params={{ hackathonId: hackathon.id }}
                   className="flex items-center justify-between rounded-2xl border border-purple-100 bg-purple-50/40 p-3.5 transition-all hover:bg-purple-100/60"
                 >
                   <div className="flex items-center gap-3">
@@ -425,7 +427,8 @@ function HackathonDetail() {
                 <div>
                   {isStarted ? (
                     <Link
-                      to={`/hackathons/${hackathon.id}/problem`}
+                      to="/hackathons/$hackathonId/problem"
+                      params={{ hackathonId: hackathon.id }}
                       className="btn-studlyf-primary flex items-center gap-2 px-6 py-3 text-xs font-bold shadow-md shadow-purple-500/20"
                     >
                       <Play className="h-4 w-4" />

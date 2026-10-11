@@ -37,8 +37,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/admin/hackathons/create")({
-  validateSearch: (search: Record<string, unknown>): { edit?: string } => ({
-    edit: typeof search.edit === "string" ? search.edit : undefined,
+  validateSearch: (search: Record<string, unknown>): { edit?: string | undefined } => ({
+    edit: typeof search["edit"] === "string" ? (search["edit"] as string) : undefined,
   }),
   head: () => ({
     meta: [

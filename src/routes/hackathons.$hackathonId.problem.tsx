@@ -98,7 +98,11 @@ function ProblemWorkspace() {
                 Hackathons
               </Link>
               <span>/</span>
-              <Link to={`/hackathons/${hackathon.id}`} className="hover:text-[#6C2BFF]">
+              <Link
+                to="/hackathons/$hackathonId"
+                params={{ hackathonId: hackathon.id }}
+                className="hover:text-[#6C2BFF]"
+              >
                 {hackathon.name}
               </Link>
               <span>/</span>
@@ -112,7 +116,8 @@ function ProblemWorkspace() {
 
           <div className="flex items-center gap-3">
             <Link
-              to={`/hackathons/${hackathon.id}/submission`}
+              to="/hackathons/$hackathonId/submission"
+              params={{ hackathonId: hackathon.id }}
               className="btn-studlyf-primary flex items-center gap-2 px-5 py-2.5 text-xs font-bold shadow-md shadow-purple-500/20"
             >
               <Send className="h-4 w-4" />
@@ -274,7 +279,8 @@ function ProblemWorkspace() {
                 submission anytime before your deadline.
               </p>
               <Link
-                to={`/hackathons/${hackathon.id}/submission`}
+                to="/hackathons/$hackathonId/submission"
+                params={{ hackathonId: hackathon.id }}
                 className="btn-studlyf-primary flex items-center justify-center gap-2 w-full py-3 text-xs font-bold"
               >
                 <span>Go to Submission Form</span>

@@ -65,8 +65,9 @@ export async function handleConnectApi(
     return next();
   }
 
-  const [pathname, search] = url.split("?");
-  const query = new URLSearchParams(search || "");
+  const pathname = url.split("?")[0] || "";
+  const search = url.split("?")[1] || "";
+  const query = new URLSearchParams(search);
 
   // 1. Server time endpoint
   if (pathname === "/api/server-time" && req.method === "GET") {
@@ -178,7 +179,7 @@ export async function handleConnectApi(
 
   // Match /api/hackathons/:id/...
   const match = pathname.match(/^\/api\/hackathons\/([^/]+)(.*)$/);
-  if (match) {
+  if (match && match[1]) {
     const hackathonId = match[1];
     const subPath = match[2] || "";
 
@@ -202,7 +203,7 @@ export async function handleConnectApi(
 
     // Serve uploaded problem file
     const fileMatch = subPath.match(/^\/files\/([^/]+)$/);
-    if (fileMatch && req.method === "GET") {
+    if (fileMatch && fileMatch[1] && req.method === "GET") {
       const storedFilename = fileMatch[1];
       const { filePath, exists } = getUploadedProblemFile(storedFilename);
       if (!exists) {
@@ -510,7 +511,7 @@ export async function handleWebFetchApi(request: Request): Promise<Response | nu
   }
 
   const match = pathname.match(/^\/api\/hackathons\/([^/]+)(.*)$/);
-  if (match) {
+  if (match && match[1]) {
     const hackathonId = match[1];
     const subPath = match[2] || "";
 
@@ -555,7 +556,7 @@ export async function handleWebFetchApi(request: Request): Promise<Response | nu
 
     // Serve uploaded problem file
     const fileMatch = subPath.match(/^\/files\/([^/]+)$/);
-    if (fileMatch && request.method === "GET") {
+    if (fileMatch && fileMatch[1] && request.method === "GET") {
       const storedFilename = fileMatch[1];
       const { filePath, exists } = getUploadedProblemFile(storedFilename);
       if (!exists) {
