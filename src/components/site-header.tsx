@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Sparkles, Layers, Plus, Terminal, User, LogOut, ArrowRightLeft } from "lucide-react";
+import { Sparkles, Layers, Plus, Terminal, User, LogOut } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { AuthModal } from "./auth-modal";
 
@@ -9,7 +9,7 @@ const linkBase =
 const linkActive = "!text-[#6C2BFF] !border-purple-200 !bg-purple-50/80 font-bold shadow-xs";
 
 export function SiteHeader() {
-  const { user, isOrganizer, logout, switchRole } = useAuth();
+  const { user, isOrganizer, logout } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   return (
@@ -87,7 +87,7 @@ export function SiteHeader() {
 
           {/* User Auth Pill */}
           {user ? (
-            <div className="flex items-center gap-1.5 rounded-full border border-purple-200/80 bg-purple-50/70 p-1 pl-2">
+            <div className="flex items-center gap-2 rounded-full border border-purple-200/80 bg-purple-50/70 p-1 pl-2.5">
               {user.picture ? (
                 <img
                   src={user.picture}
@@ -100,7 +100,7 @@ export function SiteHeader() {
                 type="button"
                 onClick={() => setAuthModalOpen(true)}
                 className="flex flex-col text-right cursor-pointer hover:opacity-80 transition-opacity pr-1"
-                title="Account Settings / Switch Demo User"
+                title="Account Settings"
               >
                 <span className="text-[11px] font-bold text-slate-800 leading-tight max-w-[100px] truncate sm:max-w-none">
                   {user.name}
@@ -112,16 +112,6 @@ export function SiteHeader() {
                 >
                   {user.role}
                 </span>
-              </button>
-
-              {/* Quick Role Switcher Button for testing */}
-              <button
-                type="button"
-                onClick={() => switchRole(user.role === "organizer" ? "participant" : "organizer")}
-                title={`Quick Switch to ${user.role === "organizer" ? "Demo Participant" : "Demo Organizer"}`}
-                className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-slate-600 hover:text-[#6C2BFF] shadow-xs hover:shadow transition-all"
-              >
-                <ArrowRightLeft className="h-3 w-3" />
               </button>
 
               <button

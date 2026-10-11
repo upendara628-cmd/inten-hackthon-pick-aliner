@@ -83,7 +83,7 @@ function parseIsoOrFallback(val: string | undefined | null, fallbackMsFromNow: n
 }
 
 function CreateHackathon() {
-  const { user, switchRole, isOrganizer } = useAuth();
+  const { user, isOrganizer } = useAuth();
   const navigate = useNavigate();
   const search = useSearch({ from: "/admin/hackathons/create" });
   const editId = search.edit;
@@ -344,15 +344,6 @@ function CreateHackathon() {
                 <span className={`font-bold ${isOrganizer ? "text-[#6C2BFF]" : "text-[#EA580C]"}`}>
                   {user.role} ({user.name})
                 </span>
-                {!isOrganizer && (
-                  <button
-                    type="button"
-                    onClick={() => switchRole("organizer")}
-                    className="ml-1 text-[11px] font-bold text-[#6C2BFF] underline"
-                  >
-                    Switch to Organizer
-                  </button>
-                )}
               </div>
             )}
           </div>

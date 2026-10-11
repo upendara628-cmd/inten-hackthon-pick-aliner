@@ -44,7 +44,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export function ThemeGalleryView() {
-  const { user, isOrganizer, isLoading, switchRole } = useAuth();
+  const { user, isOrganizer, isLoading } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [themes, setThemes] = useState<Theme[] | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -223,11 +223,11 @@ export function ThemeGalleryView() {
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
             <button
               type="button"
-              onClick={() => switchRole("organizer")}
+              onClick={() => setAuthModalOpen(true)}
               className="btn-studlyf-primary flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3.5 text-xs font-bold shadow-lg shadow-purple-500/25"
             >
               <ShieldCheck className="h-4 w-4" />
-              <span>Switch to Organizer Role</span>
+              <span>Sign In as Organizer</span>
             </button>
 
             <Link

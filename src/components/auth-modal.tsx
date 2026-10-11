@@ -35,7 +35,7 @@ export function AuthModal({
   defaultRole = "participant",
   onSuccess,
 }: AuthModalProps) {
-  const { login, loginWithGoogle, loginAsDemo, isLoading } = useAuth();
+  const { login, loginWithGoogle, isLoading } = useAuth();
   const [role, setRole] = useState<"organizer" | "participant">(defaultRole);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -52,16 +52,6 @@ export function AuthModal({
         institution: role === "participant" ? institution : undefined,
         phone: role === "participant" ? phone : undefined,
       });
-      onOpenChange(false);
-      onSuccess?.();
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleQuickPreset = async (presetRole: "organizer" | "participant") => {
-    try {
-      await loginAsDemo(presetRole);
       onOpenChange(false);
       onSuccess?.();
     } catch (err) {
@@ -190,35 +180,13 @@ export function AuthModal({
         </div>
 
         {/* Separator */}
-        <div className="relative my-2 flex items-center justify-center">
+        <div className="relative my-3 flex items-center justify-center">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-purple-100" />
           </div>
           <span className="relative bg-white px-2 text-[10px] uppercase font-bold tracking-wider text-slate-400">
             Or continue with email
           </span>
-        </div>
-
-        {/* Quick Demo Buttons */}
-        <div className="flex items-center justify-between gap-2 border-b border-purple-100 pb-3 pt-1">
-          <span className="text-[11px] font-semibold text-slate-500">Quick sign-in:</span>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => handleQuickPreset("organizer")}
-              className="text-[11px] font-bold text-[#6C2BFF] hover:underline"
-            >
-              Demo Organizer
-            </button>
-            <span className="text-slate-300">•</span>
-            <button
-              type="button"
-              onClick={() => handleQuickPreset("participant")}
-              className="text-[11px] font-bold text-[#EA580C] hover:underline"
-            >
-              Demo Participant
-            </button>
-          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3 mt-2">
