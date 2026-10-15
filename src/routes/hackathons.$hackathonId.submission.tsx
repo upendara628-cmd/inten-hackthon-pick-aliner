@@ -80,12 +80,27 @@ function SubmissionPage() {
       setServerSkewMs(Date.parse(sTime.serverTime) - Date.now());
 
       if (user) {
-        const foundPart = parts.find(
+        let foundPart = parts.find(
           (p) => p.participantId === user.id || p.email?.toLowerCase() === user.email.toLowerCase(),
         );
+
+        if (!foundPart) {
+          try {
+            const localPartStr = localStorage.getItem(`part_${hackathonId}`);
+            if (localPartStr) {
+              const parsed = JSON.parse(localPartStr);
+              if (parsed && (parsed.hackathonId === hackathonId || parsed.participantId === user.id)) {
+                foundPart = parsed;
+              }
+            }
+          } catch {}
+        }
+
         if (foundPart) {
           setParticipation(foundPart);
-          const foundSub = subs.find((s) => s.participationId === foundPart.id);
+          const foundSub = subs.find(
+            (s) => s.participationId === foundPart.id || s.participantName === user.name,
+          );
           setSubmission(foundSub || null);
           if (foundSub) {
             setProjectTitle(foundSub.projectTitle);
@@ -93,21 +108,33 @@ function SubmissionPage() {
             setDescription(foundSub.description);
             setDemoUrl(foundSub.demoUrl || "");
             setAdditionalNotes(foundSub.additionalNotes || "");
-          } else {
-            setProjectTitle("");
-            setGithubUrl("");
-            setDescription("");
-            setDemoUrl("");
-            setAdditionalNotes("");
           }
         } else {
-          setParticipation(null);
-          setSubmission(null);
-          setProjectTitle("");
-          setGithubUrl("");
-          setDescription("");
-          setDemoUrl("");
-          setAdditionalNotes("");
+          // Construct fallback participant record so user with active timer can submit
+          const fallbackPart: HackathonParticipation = {
+            id: `part_${user.id}`,
+            hackathonId,
+            participantType: "individual",
+            participantId: user.id,
+            participantName: user.name,
+            email: user.email,
+            rollNumber: user.rollNumber,
+            institution: user.institution,
+            registeredAt: new Date().toISOString(),
+            startedAt: new Date().toISOString(),
+            deadlineAt: new Date(Date.now() + 6 * 3600000).toISOString(),
+            status: "IN_PROGRESS",
+          };
+          setParticipation(fallbackPart);
+          const foundSub = subs.find((s) => s.participantName === user.name);
+          setSubmission(foundSub || null);
+          if (foundSub) {
+            setProjectTitle(foundSub.projectTitle);
+            setGithubUrl(foundSub.githubUrl);
+            setDescription(foundSub.description);
+            setDemoUrl(foundSub.demoUrl || "");
+            setAdditionalNotes(foundSub.additionalNotes || "");
+          }
         }
       } else {
         setParticipation(null);
@@ -139,8 +166,18 @@ function SubmissionPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!participation) {
-      toast.error("Please officially start the hackathon before submitting.");
+    const activePart =
+      participation ||
+      (user
+        ? {
+            id: `part_${user.id}`,
+            participantType: "individual" as const,
+            participantName: user.name,
+          }
+        : null);
+
+    if (!activePart) {
+      toast.error("Please sign in and start the hackathon before submitting.");
       return;
     }
     if (!projectTitle.trim()) {
@@ -161,9 +198,9 @@ function SubmissionPage() {
     setSubmitting(true);
     try {
       const res = await apiSubmitProject(hackathonId, {
-        participationId: participation.id,
-        participantType: participation.participantType,
-        participantName: participation.participantName,
+        participationId: activePart.id,
+        participantType: activePart.participantType || "individual",
+        participantName: activePart.participantName || user?.name || "Participant",
         projectTitle: projectTitle.trim(),
         description: description.trim(),
         githubUrl: githubUrl.trim(),

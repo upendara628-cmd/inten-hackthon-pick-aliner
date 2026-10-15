@@ -486,6 +486,15 @@ export async function handleWebFetchApi(request: Request): Promise<Response | nu
       if (!body.credential) {
         return new Response(JSON.stringify({ error: "Missing Google credential" }), { status: 400 });
       }
+      if (body.role === "organizer") {
+        return new Response(
+          JSON.stringify({
+            error:
+              "Google login is disabled for Administrator accounts. Please use the standard administrator login form.",
+          }),
+          { status: 403, headers: { "content-type": "application/json" } },
+        );
+      }
       const jwtData = parseGoogleJwt(body.credential);
       if (!jwtData) {
         return new Response(JSON.stringify({ error: "Invalid Google credential" }), { status: 400 });
@@ -494,7 +503,7 @@ export async function handleWebFetchApi(request: Request): Promise<Response | nu
         email: jwtData.email,
         name: jwtData.name,
         picture: jwtData.picture,
-        role: body.role || "participant",
+        role: "participant",
         rollNumber: body.rollNumber,
         institution: body.institution,
         phone: body.phone,
@@ -514,8 +523,11 @@ export async function handleWebFetchApi(request: Request): Promise<Response | nu
       return new Response(JSON.stringify({ success: true, user }), {
         headers: { "content-type": "application/json" },
       });
-    } catch {
-      return new Response(JSON.stringify({ error: "Invalid JSON" }), { status: 400 });
+    } catch (err: any) {
+      return new Response(
+        JSON.stringify({ error: err.message || "Authentication failed" }),
+        { status: 401, headers: { "content-type": "application/json" } },
+      );
     }
   }
 
@@ -692,11 +704,18 @@ export async function handleWebFetchApi(request: Request): Promise<Response | nu
     }
 
     if (subPath === "/participations/start" && request.method === "POST") {
-      const body = (await request.json()) as any;
-      const result = startParticipation(hackathonId, body);
-      return new Response(JSON.stringify({ success: true, ...result }), {
-        headers: { "content-type": "application/json" },
-      });
+      try {
+        const body = (await request.json()) as any;
+        const result = startParticipation(hackathonId, body);
+        return new Response(JSON.stringify({ success: true, ...result }), {
+          headers: { "content-type": "application/json" },
+        });
+      } catch (err: any) {
+        return new Response(
+          JSON.stringify({ error: err.message || "Failed to start participation" }),
+          { status: 400, headers: { "content-type": "application/json" } },
+        );
+      }
     }
 
     if (subPath === "/teams") {
@@ -706,13 +725,20 @@ export async function handleWebFetchApi(request: Request): Promise<Response | nu
         });
       }
       if (request.method === "POST") {
-        const body = (await request.json()) as any;
-        return new Response(
-          JSON.stringify({ success: true, team: createTeam(hackathonId, body) }),
-          {
-            headers: { "content-type": "application/json" },
-          },
-        );
+        try {
+          const body = (await request.json()) as any;
+          return new Response(
+            JSON.stringify({ success: true, team: createTeam(hackathonId, body) }),
+            {
+              headers: { "content-type": "application/json" },
+            },
+          );
+        } catch (err: any) {
+          return new Response(
+            JSON.stringify({ error: err.message || "Failed to create team" }),
+            { status: 400, headers: { "content-type": "application/json" } },
+          );
+        }
       }
     }
 
@@ -723,11 +749,18 @@ export async function handleWebFetchApi(request: Request): Promise<Response | nu
         });
       }
       if (request.method === "POST") {
-        const body = (await request.json()) as any;
-        const result = createOrUpdateSubmission(hackathonId, body);
-        return new Response(JSON.stringify({ success: true, ...result }), {
-          headers: { "content-type": "application/json" },
-        });
+        try {
+          const body = (await request.json()) as any;
+          const result = createOrUpdateSubmission(hackathonId, body);
+          return new Response(JSON.stringify({ success: true, ...result }), {
+            headers: { "content-type": "application/json" },
+          });
+        } catch (err: any) {
+          return new Response(
+            JSON.stringify({ error: err.message || "Failed to submit project" }),
+            { status: 400, headers: { "content-type": "application/json" } },
+          );
+        }
       }
     }
 
