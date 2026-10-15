@@ -38,6 +38,8 @@ import {
   type TemplateSizeConfig,
 } from "@/lib/template-resizer";
 
+import { AdminGuard } from "@/components/admin-guard";
+
 export const Route = createFileRoute("/admin/")({
   head: () => ({
     meta: [
@@ -55,7 +57,13 @@ export const Route = createFileRoute("/admin/")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: AdminCreator,
+  component: function AdminRouteComponent() {
+    return (
+      <AdminGuard>
+        <AdminCreator />
+      </AdminGuard>
+    );
+  },
 });
 
 const DEFAULT_BOX: Box = { x: 32, y: 18, width: 36, height: 30 };

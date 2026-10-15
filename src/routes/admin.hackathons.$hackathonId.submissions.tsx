@@ -14,11 +14,19 @@ import { SiteHeader } from "@/components/site-header";
 import { apiGetHackathon, apiListSubmissions, getExcelExportUrl } from "@/lib/hackathon-api";
 import type { Hackathon, Submission } from "@/lib/hackathon-types";
 
+import { AdminGuard } from "@/components/admin-guard";
+
 export const Route = createFileRoute("/admin/hackathons/$hackathonId/submissions")({
   head: () => ({
     meta: [{ title: "Submissions Gallery — Organizer Console" }],
   }),
-  component: SubmissionsDeepView,
+  component: function SubmissionsRouteComponent() {
+    return (
+      <AdminGuard>
+        <SubmissionsDeepView />
+      </AdminGuard>
+    );
+  },
 });
 
 function SubmissionsDeepView() {

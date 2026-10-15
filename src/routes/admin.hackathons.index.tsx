@@ -40,6 +40,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+import { AdminGuard } from "@/components/admin-guard";
+
 export const Route = createFileRoute("/admin/hackathons/")({
   head: () => ({
     meta: [
@@ -50,7 +52,13 @@ export const Route = createFileRoute("/admin/hackathons/")({
       },
     ],
   }),
-  component: AdminHackathonsIndex,
+  component: function AdminHackathonsRouteComponent() {
+    return (
+      <AdminGuard>
+        <AdminHackathonsIndex />
+      </AdminGuard>
+    );
+  },
 });
 
 function AdminHackathonsIndex() {

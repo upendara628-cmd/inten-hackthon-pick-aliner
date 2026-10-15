@@ -10,11 +10,19 @@ import {
 } from "@/lib/hackathon-api";
 import type { Hackathon, HackathonParticipation, Team } from "@/lib/hackathon-types";
 
+import { AdminGuard } from "@/components/admin-guard";
+
 export const Route = createFileRoute("/admin/hackathons/$hackathonId/participants")({
   head: () => ({
     meta: [{ title: "Participants & Teams — Organizer Console" }],
   }),
-  component: ParticipantsDeepView,
+  component: function ParticipantsRouteComponent() {
+    return (
+      <AdminGuard>
+        <ParticipantsDeepView />
+      </AdminGuard>
+    );
+  },
 });
 
 function ParticipantsDeepView() {

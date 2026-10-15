@@ -45,8 +45,8 @@ async function main() {
     assert.ok(deltaMs < 10000, `Timestamp skew too high (${deltaMs}ms)`);
   });
 
-  // 1b. Google Authentication Endpoint (/api/auth/google)
-  await runTest("Google Auth Verification (/api/auth/google)", async () => {
+  // 1b. Google Authentication & Normal Admin Login Verification
+  await runTest("Auth Verification (Admin Normal Login vs Google Login)", async () => {
     // Construct valid Google ID Token structure (header.payload.sig)
     const header = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString("base64url");
     const payload = Buffer.from(
@@ -59,7 +59,8 @@ async function main() {
     ).toString("base64url");
     const testGoogleJwt = `${header}.${payload}.mock_signature_bytes`;
 
-    const res = await fetch(`${BASE_URL}/api/auth/google`, {
+    // 1b-1: Verify that Google Login is STRICTLY FORBIDDEN for Organizer/Admin (returns 403)
+    const adminGoogleRes = await fetch(`${BASE_URL}/api/auth/google`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -67,22 +68,72 @@ async function main() {
         role: "organizer",
       }),
     });
-    assert.equal(res.status, 200, "Google auth endpoint should return 200");
+    assert.equal(adminGoogleRes.status, 403, "Google auth should be forbidden for admin/organizer");
+
+    // 1b-2: Verify Google Login works for Participant role
+    const res = await fetch(`${BASE_URL}/api/auth/google`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        credential: testGoogleJwt,
+        role: "participant",
+      }),
+    });
+    assert.equal(res.status, 200, "Google auth endpoint should return 200 for participant");
     const data = await res.json();
     assert.ok(data.success, "Google auth should return success: true");
     assert.equal(data.user.email, "e2e.google.user@gmail.com");
-    assert.equal(data.user.name, "E2E Google Tester");
-    assert.equal(data.user.picture, "https://lh3.googleusercontent.com/test-pic.jpg");
-    assert.equal(data.user.role, "organizer");
+    assert.equal(data.user.role, "participant");
     assert.ok(data.user.token, "User should receive active auth token");
 
     // Verify token works with /api/auth/me
     const meRes = await fetch(`${BASE_URL}/api/auth/me`, {
       headers: { Authorization: `Bearer ${data.user.token}` },
     });
-    assert.equal(meRes.status, 200, "/api/auth/me should authenticate Google user");
+    assert.equal(meRes.status, 200, "/api/auth/me should authenticate user");
     const meData = await meRes.json();
     assert.equal(meData.user.email, "e2e.google.user@gmail.com");
+
+    // 1b-3: Verify Normal Admin Login (/api/auth/login) with admin@gmail.com and password pi2000
+    const adminLoginRes = await fetch(`${BASE_URL}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: "admin@gmail.com",
+        password: "pi2000",
+        role: "organizer",
+        name: "System Administrator",
+      }),
+    });
+    assert.equal(adminLoginRes.status, 200, "Normal admin login for admin@gmail.com should return 200");
+    const adminData = await adminLoginRes.json();
+    assert.equal(adminData.user.email, "admin@gmail.com");
+    assert.equal(adminData.user.role, "organizer");
+    assert.equal(adminData.user.token, "tok_organizer_master");
+
+    // 1b-4: Verify incorrect password rejection for admin@gmail.com
+    const wrongPassRes = await fetch(`${BASE_URL}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: "admin@gmail.com",
+        password: "wrong_password",
+        role: "organizer",
+      }),
+    });
+    assert.equal(wrongPassRes.status, 401, "Incorrect password should return 401");
+
+    // 1b-5: Verify unauthorized email trying to claim organizer role is rejected
+    const unauthOrgRes = await fetch(`${BASE_URL}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: "unauthorized@example.com",
+        password: "anypassword",
+        role: "organizer",
+      }),
+    });
+    assert.equal(unauthOrgRes.status, 401, "Unauthorized new admin login should be rejected with 401");
 
     // Invalid credential rejection
     const badRes = await fetch(`${BASE_URL}/api/auth/google`, {

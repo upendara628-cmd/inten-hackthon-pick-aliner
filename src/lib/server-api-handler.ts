@@ -92,6 +92,16 @@ export async function handleConnectApi(
         res.end(JSON.stringify({ error: "Missing Google credential" }));
         return;
       }
+      if (body.role === "organizer") {
+        res.statusCode = 403;
+        res.end(
+          JSON.stringify({
+            error:
+              "Google login is disabled for Administrator accounts. Please use the standard administrator login form.",
+          }),
+        );
+        return;
+      }
       const jwtData = parseGoogleJwt(body.credential);
       if (!jwtData) {
         res.statusCode = 400;
@@ -102,7 +112,7 @@ export async function handleConnectApi(
         email: jwtData.email,
         name: jwtData.name,
         picture: jwtData.picture,
-        role: body.role || "participant",
+        role: "participant",
         rollNumber: body.rollNumber,
         institution: body.institution,
         phone: body.phone,
@@ -124,9 +134,10 @@ export async function handleConnectApi(
       res.setHeader("Content-Type", "application/json");
       res.statusCode = 200;
       res.end(JSON.stringify({ success: true, user }));
-    } catch {
-      res.statusCode = 400;
-      res.end(JSON.stringify({ error: "Invalid JSON" }));
+    } catch (err: any) {
+      res.setHeader("Content-Type", "application/json");
+      res.statusCode = 401;
+      res.end(JSON.stringify({ error: err.message || "Authentication failed" }));
     }
     return;
   }

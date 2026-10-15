@@ -18,6 +18,7 @@ interface AuthContextType {
     payload: {
       email: string;
       role: "organizer" | "participant";
+      password?: string | undefined;
       name?: string | undefined;
       rollNumber?: string | undefined;
       institution?: string | undefined;
@@ -104,6 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     payload: {
       email: string;
       role: "organizer" | "participant";
+      password?: string | undefined;
       name?: string | undefined;
       rollNumber?: string | undefined;
       institution?: string | undefined;
@@ -184,10 +186,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const payload =
         targetRole === "organizer"
           ? {
-              email: "organizer@event.com",
-              name: "Event Organizer Sir",
+              email: "admin@gmail.com",
+              password: "pi2000",
+              name: "System Administrator",
               role: "organizer" as const,
-              institution: "Tech University",
+              institution: "Framewise Admin",
             }
           : {
               email: "participant@student.edu",

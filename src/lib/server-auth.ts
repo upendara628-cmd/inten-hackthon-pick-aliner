@@ -28,6 +28,14 @@ const USERS_FILE = resolveUsersFile();
 
 const defaultUsers: UserProfile[] = [
   {
+    id: "org_admin_primary",
+    email: "admin@gmail.com",
+    name: "System Administrator",
+    role: "organizer",
+    institution: "Framewise Admin",
+    token: "tok_organizer_master",
+  },
+  {
     id: "org_admin",
     email: "organizer@event.com",
     name: "Event Organizer Sir",
@@ -135,6 +143,7 @@ export function parseGoogleJwt(credential: string): {
 
 export function loginOrRegister(payload: {
   email: string;
+  password?: string | undefined;
   name?: string | undefined;
   role?: ("organizer" | "participant") | undefined;
   rollNumber?: string | undefined;
@@ -144,24 +153,56 @@ export function loginOrRegister(payload: {
 }): UserProfile {
   const users = loadUsers();
   const normalizedEmail = payload.email.trim().toLowerCase();
+
+  // If attempting organizer login or accessing as admin@gmail.com
+  const isOrganizerAttempt =
+    payload.role === "organizer" || normalizedEmail === "admin@gmail.com";
+
+  if (isOrganizerAttempt) {
+    const isAuthorizedAdmin =
+      normalizedEmail === "admin@gmail.com" || normalizedEmail === "organizer@event.com";
+
+    if (!isAuthorizedAdmin) {
+      throw new Error(
+        "Unauthorized admin account. Only admin@gmail.com is permitted as administrator. No other logins can access or be added to the admin console.",
+      );
+    }
+
+    if (normalizedEmail === "admin@gmail.com") {
+      if (payload.password !== "pi2000") {
+        throw new Error(
+          "Invalid administrator password. Please enter the correct password (pi2000).",
+        );
+      }
+    }
+  }
+
   const existingUser = users.find((u) => u.email.toLowerCase() === normalizedEmail);
 
   let user: UserProfile;
 
   if (existingUser) {
     user = existingUser;
-    // Explicitly update role if provided in the payload
-    if (payload.role) {
+    // Explicitly update role if provided in the payload and authorized
+    if (normalizedEmail === "admin@gmail.com" || normalizedEmail === "organizer@event.com") {
+      user.role = "organizer";
+      user.token = "tok_organizer_master";
+    } else if (payload.role) {
       user.role = payload.role;
     }
+
     if (payload.name) user.name = payload.name;
     if (payload.rollNumber !== undefined) user.rollNumber = payload.rollNumber;
     if (payload.institution !== undefined) user.institution = payload.institution;
     if (payload.phone !== undefined) user.phone = payload.phone;
     if (payload.picture !== undefined) user.picture = payload.picture;
 
-    // Preserve master tokens for predefined demo users
-    if (normalizedEmail === "organizer@event.com") {
+    // Preserve master tokens for predefined users
+    if (normalizedEmail === "admin@gmail.com") {
+      user.id = "org_admin_primary";
+      user.role = "organizer";
+      user.token = "tok_organizer_master";
+    } else if (normalizedEmail === "organizer@event.com") {
       user.role = "organizer";
       user.token = "tok_organizer_master";
     } else if (
@@ -174,24 +215,38 @@ export function loginOrRegister(payload: {
       user.token = "tok_" + Math.random().toString(36).slice(2, 12);
     }
   } else {
+    const isPrimaryAdmin = normalizedEmail === "admin@gmail.com";
     const isDemoOrg = normalizedEmail === "organizer@event.com";
     const isDemoPart =
       normalizedEmail === "participant@student.edu" || normalizedEmail === "alex.rivera@student.edu";
 
     user = {
-      id: isDemoOrg ? "org_admin" : isDemoPart ? "part_demo_1" : "usr_" + Math.random().toString(36).slice(2, 10),
+      id: isPrimaryAdmin
+        ? "org_admin_primary"
+        : isDemoOrg
+          ? "org_admin"
+          : isDemoPart
+            ? "part_demo_1"
+            : "usr_" + Math.random().toString(36).slice(2, 10),
       email: payload.email.trim(),
-      name: payload.name || payload.email.split("@")[0] || "User",
-      role: isDemoOrg ? "organizer" : isDemoPart ? "participant" : payload.role || "participant",
+      name:
+        payload.name ||
+        (isPrimaryAdmin
+          ? "System Administrator"
+          : isDemoOrg
+            ? "Event Organizer Sir"
+            : payload.email.split("@")[0] || "User"),
+      role: isPrimaryAdmin || isDemoOrg ? "organizer" : payload.role || "participant",
       rollNumber: payload.rollNumber,
-      institution: payload.institution,
+      institution: payload.institution || (isPrimaryAdmin ? "Framewise Admin" : undefined),
       phone: payload.phone,
       picture: payload.picture,
-      token: isDemoOrg
-        ? "tok_organizer_master"
-        : isDemoPart
-          ? "tok_participant_demo"
-          : "tok_" + Math.random().toString(36).slice(2, 12),
+      token:
+        isPrimaryAdmin || isDemoOrg
+          ? "tok_organizer_master"
+          : isDemoPart
+            ? "tok_participant_demo"
+            : "tok_" + Math.random().toString(36).slice(2, 12),
     };
     users.push(user);
   }

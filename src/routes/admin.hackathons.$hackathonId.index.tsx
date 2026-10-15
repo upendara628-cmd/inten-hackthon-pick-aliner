@@ -53,6 +53,8 @@ import type {
 } from "@/lib/hackathon-types";
 import { Button } from "@/components/ui/button";
 
+import { AdminGuard } from "@/components/admin-guard";
+
 export const Route = createFileRoute("/admin/hackathons/$hackathonId/")({
   head: () => ({
     meta: [
@@ -64,7 +66,13 @@ export const Route = createFileRoute("/admin/hackathons/$hackathonId/")({
       },
     ],
   }),
-  component: LiveHackathonDashboard,
+  component: function LiveHackathonRouteComponent() {
+    return (
+      <AdminGuard>
+        <LiveHackathonDashboard />
+      </AdminGuard>
+    );
+  },
 });
 
 function LiveHackathonDashboard() {

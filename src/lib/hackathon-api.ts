@@ -63,6 +63,7 @@ export async function fetchServerTime(): Promise<ServerTimeResponse> {
 
 export async function apiLogin(payload: {
   email: string;
+  password?: string | undefined;
   name?: string | undefined;
   role?: ("organizer" | "participant") | undefined;
   rollNumber?: string | undefined;

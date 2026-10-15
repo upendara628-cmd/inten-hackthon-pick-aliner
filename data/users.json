@@ -1,5 +1,13 @@
 [
   {
+    "id": "org_admin_primary",
+    "email": "admin@gmail.com",
+    "name": "System Administrator",
+    "role": "organizer",
+    "institution": "Framewise Admin",
+    "token": "tok_organizer_master"
+  },
+  {
     "id": "org_admin",
     "email": "organizer@event.com",
     "name": "Event Organizer Sir",
@@ -52,7 +60,7 @@
     "id": "usr_6xndwuyw",
     "email": "e2e.google.user@gmail.com",
     "name": "E2E Google Tester",
-    "role": "organizer",
+    "role": "participant",
     "picture": "https://lh3.googleusercontent.com/test-pic.jpg",
     "token": "tok_8fh6767bxb"
   }
